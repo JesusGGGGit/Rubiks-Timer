@@ -484,7 +484,6 @@ function handleCreateSession() {
   const handleOutsideClick = (e) => {
     if (e.target.classList.contains("modal-overlay")) {
       setShowDeleteModal(false);
-      setShowSettings(false);
       setShowTimeDetailModal(false);
     }
   };

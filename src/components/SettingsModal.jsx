@@ -2,7 +2,6 @@ import React from "react";
 
 export default function SettingsModal({
   showSettings,
-  handleOutsideClick,
   activeSettingsTab,
   setActiveSettingsTab,
   bgColor,
@@ -32,10 +31,14 @@ export default function SettingsModal({
   setShowSettings,
 }) {
   if (!showSettings) return null;
-
+ const handleOutsideClick = (e) => {
+    if (e.target.classList.contains("modal-overlay")) {
+      setShowSettings(false);
+    }
+  };
   return (
     <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
-      <div className="settings-content" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-content" onClick={(e) => e.stopPropagation()}>
         <div className="settings-sidebar">
           {["apariencia", "comportamiento", "tiempos", "sesiones", "scramble"].map((tab) => (
             <button
