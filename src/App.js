@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import confetti from "canvas-confetti";
+import SettingsModal from "./components/SettingsModal"; 
+import CubeVisualization from './components/CubeVisualization'; 
+import { parseScramble } from './utils/cubeUtils'; 
+
 
 function formatTimeDisplay(ms) {
   if (ms >= 0) {
@@ -47,216 +51,7 @@ function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
   return isPlusTwo ? `${timeStr} (+2)` : timeStr;
 }
 
-function parseScramble(scramble) {
-  const cubeState = {
-    U: Array(9).fill('white'),
-    L: Array(9).fill('orange'),
-    F: Array(9).fill('green'),
-    R: Array(9).fill('red'),
-    B: Array(9).fill('blue'),
-    D: Array(9).fill('yellow')
-  };
 
-  if (!scramble || typeof scramble !== 'string' || scramble.includes("Generating") || scramble.includes("Failed")) {
-    return cubeState;
-  }
-
-  const moves = scramble.split(' ');
-
-  moves.forEach(move => {
-    if (!move) return;
-    const face = move[0];
-    const isPrime = move.includes("'");
-    const isDouble = move.includes("2");
-    const turns = isDouble ? 2 : (isPrime ? 3 : 1);
-    for (let i = 0; i < turns; i++) {
-      rotateFace(cubeState, face);
-    }
-  });
-
-  return cubeState;
-}
-
-function rotateFace(cubeState, face) {
-  const fc = cubeState[face];
-  cubeState[face] = [
-    fc[6], fc[3], fc[0],
-    fc[7], fc[4], fc[1],
-    fc[8], fc[5], fc[2]
-  ];
-
-  let temp;
-  switch (face) {
-    case 'U': {
-      temp = cubeState.F.slice(0, 3);
-      cubeState.F[0] = cubeState.R[0];
-      cubeState.F[1] = cubeState.R[1];
-      cubeState.F[2] = cubeState.R[2];
-
-      cubeState.R[0] = cubeState.B[0];
-      cubeState.R[1] = cubeState.B[1];
-      cubeState.R[2] = cubeState.B[2];
-
-      cubeState.B[0] = cubeState.L[0];
-      cubeState.B[1] = cubeState.L[1];
-      cubeState.B[2] = cubeState.L[2];
-
-      cubeState.L[0] = temp[0];
-      cubeState.L[1] = temp[1];
-      cubeState.L[2] = temp[2];
-      break;
-    }
-
-    case 'D': {
-      temp = cubeState.F.slice(6, 9);
-      cubeState.F[6] = cubeState.L[6];
-      cubeState.F[7] = cubeState.L[7];
-      cubeState.F[8] = cubeState.L[8];
-
-      cubeState.L[6] = cubeState.B[6];
-      cubeState.L[7] = cubeState.B[7];
-      cubeState.L[8] = cubeState.B[8];
-
-      cubeState.B[6] = cubeState.R[6];
-      cubeState.B[7] = cubeState.R[7];
-      cubeState.B[8] = cubeState.R[8];
-
-      cubeState.R[6] = temp[0];
-      cubeState.R[7] = temp[1];
-      cubeState.R[8] = temp[2];
-      break;
-    }
-
-    case 'F': {
-      temp = [cubeState.U[6], cubeState.U[7], cubeState.U[8]];
-      cubeState.U[6] = cubeState.L[8];
-      cubeState.U[7] = cubeState.L[5];
-      cubeState.U[8] = cubeState.L[2];
-
-      cubeState.L[8] = cubeState.D[2];
-      cubeState.L[5] = cubeState.D[1];
-      cubeState.L[2] = cubeState.D[0];
-
-      cubeState.D[0] = cubeState.R[6];
-      cubeState.D[1] = cubeState.R[3];
-      cubeState.D[2] = cubeState.R[0];
-
-      cubeState.R[0] = temp[0];
-      cubeState.R[3] = temp[1];
-      cubeState.R[6] = temp[2];
-      break;
-    }
-
-    case 'B': {
-      temp = [cubeState.U[0], cubeState.U[1], cubeState.U[2]];
-      cubeState.U[0] = cubeState.R[2];
-      cubeState.U[1] = cubeState.R[5];
-      cubeState.U[2] = cubeState.R[8];
-
-      cubeState.R[2] = cubeState.D[8];
-      cubeState.R[5] = cubeState.D[7];
-      cubeState.R[8] = cubeState.D[6];
-
-      cubeState.D[6] = cubeState.L[0];
-      cubeState.D[7] = cubeState.L[3];
-      cubeState.D[8] = cubeState.L[6];
-
-      cubeState.L[0] = temp[2];
-      cubeState.L[3] = temp[1];
-      cubeState.L[6] = temp[0];
-      break;
-    }
-
-    case 'R': {
-      temp = [cubeState.U[2], cubeState.U[5], cubeState.U[8]];
-      cubeState.U[2] = cubeState.F[2];
-      cubeState.U[5] = cubeState.F[5];
-      cubeState.U[8] = cubeState.F[8];
-
-      cubeState.F[2] = cubeState.D[2];
-      cubeState.F[5] = cubeState.D[5];
-      cubeState.F[8] = cubeState.D[8];
-
-      cubeState.D[2] = cubeState.B[6];
-      cubeState.D[5] = cubeState.B[3];
-      cubeState.D[8] = cubeState.B[0];
-
-      cubeState.B[0] = temp[2];
-      cubeState.B[3] = temp[1];
-      cubeState.B[6] = temp[0];
-      break;
-    }
-
-    case 'L': {
-      temp = [cubeState.U[0], cubeState.U[3], cubeState.U[6]];
-      cubeState.U[0] = cubeState.B[8];
-      cubeState.U[3] = cubeState.B[5];
-      cubeState.U[6] = cubeState.B[2];
-
-      cubeState.B[2] = cubeState.D[6];
-      cubeState.B[5] = cubeState.D[3];
-      cubeState.B[8] = cubeState.D[0];
-
-      cubeState.D[0] = cubeState.F[0];
-      cubeState.D[3] = cubeState.F[3];
-      cubeState.D[6] = cubeState.F[6];
-
-      cubeState.F[0] = temp[0];
-      cubeState.F[3] = temp[1];
-      cubeState.F[6] = temp[2];
-      break;
-    }
-  }
-}
-
-function CubeVisualization({ cubeState }) {
-  return (
-    <div className="cube-visualization">
-      <div className="cube-face-row">
-        <div className="cube-face placeholder"></div>
-        <div className="cube-face up-face">
-          {cubeState.U.map((color, i) => (
-            <div key={`U${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-        <div className="cube-face placeholder"></div>
-        <div className="cube-face placeholder"></div>
-      </div>
-      <div className="cube-face-row">
-        <div className="cube-face left-face">
-          {cubeState.L.map((color, i) => (
-            <div key={`L${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-        <div className="cube-face front-face">
-          {cubeState.F.map((color, i) => (
-            <div key={`F${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-        <div className="cube-face right-face">
-          {cubeState.R.map((color, i) => (
-            <div key={`R${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-        <div className="cube-face back-face">
-          {cubeState.B.map((color, i) => (
-            <div key={`B${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-      </div>
-      <div className="cube-face-row">
-        <div className="cube-face placeholder"></div>
-        <div className="cube-face down-face">
-          {cubeState.D.map((color, i) => (
-            <div key={`D${i}`} className="cube-sticker" style={{ backgroundColor: color }}></div>
-          ))}
-        </div>
-        <div className="cube-face placeholder"></div>
-        <div className="cube-face placeholder"></div>
-      </div>
-    </div>
-  );
-}
 
 function App() {
   const [sessions, setSessions] = useState(() => {
@@ -990,203 +785,36 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
         )}
       </main>
 
-      {showSettings && (
-        <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
-          <div className="settings-content" onClick={(e) => e.stopPropagation()}>
-            <div className="settings-sidebar">
-              <button
-                className={`settings-tab ${activeSettingsTab === "apariencia" ? "active" : ""}`}
-                onClick={() => setActiveSettingsTab("apariencia")}
-              >
-                🎨 Apariencia
-              </button>
-              <button
-                className={`settings-tab ${activeSettingsTab === "comportamiento" ? "active" : ""}`}
-                onClick={() => setActiveSettingsTab("comportamiento")}
-              >
-                ⚙️ Comportamiento
-              </button>
-              <button
-                className={`settings-tab ${activeSettingsTab === "tiempos" ? "active" : ""}`}
-                onClick={() => setActiveSettingsTab("tiempos")}
-              >
-                ⏱️ Tiempos
-              </button>
-              <button
-                className={`settings-tab ${activeSettingsTab === "sesiones" ? "active" : ""}`}
-                onClick={() => setActiveSettingsTab("sesiones")}
-              >
-                📁 Sesiones
-              </button>
-              <button
-                className={`settings-tab ${activeSettingsTab === "scramble" ? "active" : ""}`}
-                onClick={() => setActiveSettingsTab("scramble")}
-              >
-                🔀 Scramble
-              </button>
-            </div>
-            <div className="settings-main">
-              {activeSettingsTab === "apariencia" && (
-                <div className="settings-section">
-                  <h3>Personalización Visual</h3>
-                  <div className="setting-group">
-                    <label>
-                      Color de fondo:
-                      <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} />
-                    </label>
-                  </div>
-                  <div className="setting-group">
-                    <label>
-                      Color del timer:
-                      <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
-                    </label>
-                  </div>
-                  <div className="setting-group">
-                    <label>
-                      Color del scramble:
-                      <input type="color" value={scrambleColor} onChange={(e) => setScrambleColor(e.target.value)} />
-                    </label>
-                  </div>
-                  <div className="setting-group">
-                    <label>
-                      Tamaño del timer: {timerSize}%
-                      <input
-                        type="range"
-                        min="10"
-                        max="450"
-                        value={timerSize}
-                        onChange={(e) => setTimerSize(parseInt(e.target.value))}
-                      />
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {activeSettingsTab === "comportamiento" && (
-                <div className="settings-section">
-                  <h3>Comportamiento del Timer</h3>
-                  <div className="setting-group">
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={holdToStart}
-                        onChange={(e) => setHoldToStart(e.target.checked)}
-                      />
-                      <span className="slider"></span>
-                      Mantener espacio para iniciar
-                    </label>
-                    <p className="setting-description">Desactívalo para iniciar/detener con un solo clic</p>
-                  </div>
-                  <div className="setting-group">
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={inspectionTime}
-                        onChange={(e) => setInspectionTime(e.target.checked)}
-                      />
-                      <span className="slider"></span>
-                      Habilitar tiempo de inspección
-                    </label>
-                    {inspectionTime && (
-                      <div className="setting-subgroup">
-                        <label>
-                          Duración (segundos):
-                          <input
-                            type="number"
-                            min="5"
-                            max="60"
-                            value={inspectionDuration}
-                            onChange={(e) => setInspectionDuration(Math.max(5, Math.min(60, parseInt(e.target.value) || 15)))}
-                          />
-                        </label>
-                      </div>
-                    )}
-                    <p className="setting-description">Tiempo para inspeccionar el cubo antes de comenzar</p>
-                  </div>
-                </div>
-              )}
-
-              {activeSettingsTab === "tiempos" && (
-                <div className="settings-section">
-                  <h3>Gestión de Tiempos</h3>
-                  <div className="setting-group">
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={dontAskAgain}
-                        onChange={(e) => setDontAskAgain(e.target.checked)}
-                      />
-                      <span className="slider"></span>
-                      No preguntar antes de borrar
-                    </label>
-                  </div>
-                  <div className="setting-group">
-                    <button className="danger-button" onClick={resetTimes}>
-                      Borrar todos los tiempos
-                    </button>
-                    <p className="setting-description">Esta acción borrará los tiempos solo de la sesión actual</p>
-                  </div>
-                </div>
-              )}
-
-              {activeSettingsTab === "sesiones" && (
-                <div className="settings-section">
-                  <h3>Gestión de Sesiones</h3>
-                  <div className="sessions-list">
-                    {sessions.map(session => (
-                      <div key={session.id} className="session-item">
-                        <input
-                          type="text"
-                          value={session.name}
-                          onChange={(e) => renameSession(session.id, e.target.value)}
-                        />
-                        <span>{session.times.length} tiempos</span>
-                        {sessions.length > 1 && (
-                          <button
-                            className="danger-button small"
-                            onClick={() => deleteSession(session.id)}
-                            disabled={session.id === activeSessionId}
-                          >
-                            Eliminar
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <button className="primary-button" onClick={createNewSession}>
-                    Crear Nueva Sesión
-                  </button>
-                </div>
-              )}
-
-              {activeSettingsTab === "scramble" && (
-                <div className="settings-section">
-                  <h3>Configuración de Scramble</h3>
-                  <div className="setting-group">
-                    <label>
-                      Tamaño del texto:
-                      <input
-                        type="range"
-                        min="1"
-                        max="30"
-                        value={scrambleSize}
-                        onChange={(e) => setScrambleSize(parseInt(e.target.value))}
-                      />
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              <div className="settings-footer">
-                <button className="close-button" onClick={() => setShowSettings(false)}>
-                  Cerrar Configuración
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <SettingsModal
+      showSettings={showSettings}
+      setShowSettings={setShowSettings}
+      activeSettingsTab={activeSettingsTab}
+      setActiveSettingsTab={setActiveSettingsTab}
+      bgColor={bgColor}
+      setBgColor={setBgColor}
+      textColor={textColor}
+      setTextColor={setTextColor}
+      scrambleColor={scrambleColor}
+      setScrambleColor={setScrambleColor}
+      timerSize={timerSize}
+      setTimerSize={setTimerSize}
+      holdToStart={holdToStart}
+      setHoldToStart={setHoldToStart}
+      inspectionTime={inspectionTime}
+      setInspectionTime={setInspectionTime}
+      inspectionDuration={inspectionDuration}
+      setInspectionDuration={setInspectionDuration}
+      dontAskAgain={dontAskAgain}
+      setDontAskAgain={setDontAskAgain}
+      resetTimes={resetTimes}
+      sessions={sessions}
+      renameSession={renameSession}
+      deleteSession={deleteSession}
+      activeSessionId={activeSessionId}
+      createNewSession={createNewSession}
+      scrambleSize={scrambleSize}
+      setScrambleSize={setScrambleSize}
+    />
       {showDeleteModal && (
         <div className="modal-overlay" onClick={handleOutsideClick}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
