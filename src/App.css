@@ -930,3 +930,187 @@ input[type="range"]::-webkit-slider-thumb {
 .right-face .cube-sticker { background-color: red; }
 .back-face .cube-sticker { background-color: blue; }
 .down-face .cube-sticker { background-color: yellow; }
+
+
+/* ==================== */
+/* ESTADÍSTICAS MEJORADAS */
+/* ==================== */
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background-color: var(--panel-bg);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--gray);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--light);
+}
+
+/* ==================== */
+/* SELECTOR DE SESIONES */
+/* ==================== */
+
+.session-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.session-selector-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.session-selector-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.session-selector {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--light);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.session-selector:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.session-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.new-session-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.new-session-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+.manage-sessions-btn {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manage-sessions-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== */
+/* MODAL GESTIÓN SESIONES */
+/* ==================== */
+
+.session-modal-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.session-item:last-child {
+  border-bottom: none;
+}
+
+.session-item input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: white;
+  margin-right: 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.session-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.session-item-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.session-item-btn.delete {
+  background-color: rgba(255, 56, 96, 0.2);
+  color: var(--danger);
+}
+
+.session-item-btn.delete:hover {
+  background-color: rgba(255, 56, 96, 0.3);
+}
+
+.session-item-btn.activate {
+  background-color: rgba(58, 134, 255, 0.2);
+  color: var(--primary);
+}
+
+.session-item-btn.activate:hover {
+  background-color: rgba(58, 134, 255, 0.3);
+}
