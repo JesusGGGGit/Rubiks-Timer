@@ -9,7 +9,7 @@ function formatTimeDisplay(ms) {
     const seconds = Math.floor((ms % 60000) / 1000);
     const tenths = Math.floor((ms % 1000) / 100);
     const twoDigits = (n) => (n < 10 ? "0" + n : n);
-   
+
     if (hours > 0) return `${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}.${tenths}`;
     if (minutes > 0) return `${minutes}:${twoDigits(seconds)}.${tenths}`;
     return `${seconds}.${tenths}`;
@@ -22,19 +22,19 @@ function formatTimeDisplay(ms) {
 function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
   const isPlusTwo = plusTwoTimes.includes(index);
   const isDnf = dnfTimes.includes(index);
-  
+
   if (isDnf) return "DNF";
-  
+
   const displayMs = isPlusTwo && typeof ms === 'number' ? ms + 2000 : ms;
-  
+
   if (displayMs === "DNF") return "DNF";
-  
+
   const hours = Math.floor(displayMs / 3600000);
   const minutes = Math.floor((displayMs % 3600000) / 60000);
   const seconds = Math.floor((displayMs % 60000) / 1000);
   const centiseconds = Math.floor((displayMs % 1000) / 10);
   const twoDigits = (n) => (n < 10 ? "0" + n : n);
-  
+
   let timeStr;
   if (hours > 0) {
     timeStr = `${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}.${twoDigits(centiseconds)}`;
@@ -43,7 +43,7 @@ function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
   } else {
     timeStr = `${seconds}.${twoDigits(centiseconds)}`;
   }
-  
+
   return isPlusTwo ? `${timeStr} (+2)` : timeStr;
 }
 
@@ -259,7 +259,6 @@ function CubeVisualization({ cubeState }) {
 }
 
 function App() {
-  // Estados para sesiones
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem("sessions");
     return saved ? JSON.parse(saved) : [{
@@ -278,7 +277,6 @@ function App() {
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
 
-  // Otros estados
   const savedBgColor = localStorage.getItem("bgColor") || "#ffffff";
   const savedTextColor = localStorage.getItem("textColor") || "#000000";
   const savedScrambleColor = localStorage.getItem("scrambleColor") || "#000000";
@@ -310,7 +308,6 @@ function App() {
   const [selectedTimeDetail, setSelectedTimeDetail] = useState(null);
   const [previousBestTime, setPreviousBestTime] = useState(null);
 
-  // Variables derivadas
   const numericTimes = activeSession.times.map((t, i) => {
     if (activeSession.dnfTimes.includes(i)) return null;
     if (t.time === "DNF") return null;
@@ -318,6 +315,9 @@ function App() {
   }).filter(t => t !== null);
 
   const bestTime = numericTimes.length > 0 ? Math.min(...numericTimes) : null;
+  const worstTime = numericTimes.length > 0 ? Math.max(...numericTimes) : null;
+  const totalSolves = activeSession.times.length;
+  const overallAverage = numericTimes.length > 0 ? numericTimes.reduce((a, b) => a + b, 0) / numericTimes.length : null;
 
   const average = (arr) => {
     const nums = arr.map((t, i) => {
@@ -325,14 +325,13 @@ function App() {
       if (t.time === "DNF") return null;
       return activeSession.plusTwoTimes.includes(i) ? t.time + 2000 : t.time;
     }).filter(t => t !== null);
-   
+
     return nums.length === 0 ? null : nums.reduce((a, b) => a + b, 0) / nums.length;
   };
- 
+
   const ao5 = activeSession.times.length >= 5 ? average(activeSession.times.slice(-5)) : null;
   const ao12 = activeSession.times.length >= 12 ? average(activeSession.times.slice(-12)) : null;
 
-  // Refs
   const runningRef = useRef(running);
   const inspectionRunningRef = useRef(inspectionRunning);
   const readyRef = useRef(ready);
@@ -345,7 +344,6 @@ function App() {
   const showDnfRef = useRef(showDnf);
   const confettiRef = useRef(null);
 
-  // Efectos para sincronizar refs
   useEffect(() => { runningRef.current = running; }, [running]);
   useEffect(() => { inspectionRunningRef.current = inspectionRunning; }, [inspectionRunning]);
   useEffect(() => { readyRef.current = ready; }, [ready]);
@@ -354,7 +352,6 @@ function App() {
   useEffect(() => { dnfRef.current = dnf; }, [dnf]);
   useEffect(() => { showDnfRef.current = showDnf; }, [showDnf]);
 
-  // Efectos para persistencia en localStorage
   useEffect(() => {
     localStorage.setItem("sessions", JSON.stringify(sessions));
   }, [sessions]);
@@ -416,7 +413,6 @@ function App() {
     }
   }, [running]);
 
-  // Función para generar scramble
   const generateScramble = async (attempts = 3) => {
     for (let i = 0; i < attempts; i++) {
       try {
@@ -460,7 +456,6 @@ function App() {
     return () => clearInterval(intervalRef.current);
   }, [running]);
 
-  // Función para iniciar inspección
   const startInspection = () => {
     let remaining = inspectionDuration;
     setTime(-remaining * 1000);
@@ -477,9 +472,9 @@ function App() {
         setDnf(true);
         setShowDnf(true);
         setInspectionRunning(false);
-       
-        const newSessions = sessions.map(session => 
-          session.id === activeSessionId 
+
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
             ? {
                 ...session,
                 times: [...session.times, { time: "DNF", scramble: scramble }],
@@ -488,78 +483,91 @@ function App() {
             : session
         );
         setSessions(newSessions);
-       
+
         generateScramble();
       }
     }, 1000);
   };
 
-  // Manejadores de eventos del teclado
-  const handleKeyDown = (e) => {
-    if (e.code === "Space") {
-      e.preventDefault();
-     
-      if (showDnfRef.current) {
-        setShowDnf(false);
-        if (inspectionTime) {
-          startInspection();
-        }
-        return;
-      }
-     
-      if (!runningRef.current && !inspectionRunningRef.current && !readyRef.current) {
-        if (inspectionTime) {
-          startInspection();
-        } else {
-          holdTimeoutRef.current = setTimeout(() => {
-            setReady(true);
-          }, holdToStart ? 500 : 0);
-        }
-      }
-     
-      if (inspectionRunningRef.current && !readyRef.current) {
-        holdTimeoutRef.current = setTimeout(() => {
-          if (inspectionRunningRef.current) {
-            setReady(true);
-          }
-        }, 500);
-      }
-    }
-  };
+ const handleKeyDown = (e) => {
+  const tag = e.target.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea') {
+    // Ignorar la barra espaciadora para inputs y textareas para que puedan escribir espacio
+    return;
+  }
 
-  const handleKeyUp = (e) => {
-    if (e.code === "Space") {
-      e.preventDefault();
-      clearTimeout(holdTimeoutRef.current);
-     
-      if (showDnfRef.current) return;
-     
-      if (readyRef.current) {
-        setTime(0);
-        setRunning(true);
-        setReady(false);
-        setInspectionRunning(false);
-        clearInterval(inspectionIntervalRef.current);
+  if (e.code === "Space") {
+    e.preventDefault();
+
+    if (showDnfRef.current) {
+      setShowDnf(false);
+      if (inspectionTime) {
+        startInspection();
       }
-      else if (inspectionRunningRef.current) {
-      }
-      else if (runningRef.current) {
-        setRunning(false);
-        if (timeRef.current > 0) {
-          const newSessions = sessions.map(session => 
-            session.id === activeSessionId 
-              ? {
-                  ...session,
-                  times: [...session.times, { time: timeRef.current, scramble: scramble }]
-                }
-              : session
-          );
-          setSessions(newSessions);
-        }
-        generateScramble();
+      return;
+    }
+
+    if (!runningRef.current && !inspectionRunningRef.current && !readyRef.current) {
+      if (inspectionTime) {
+        startInspection();
+      } else {
+        holdTimeoutRef.current = setTimeout(() => {
+          setReady(true);
+        }, holdToStart ? 500 : 0);
       }
     }
-  };
+
+    if (inspectionRunningRef.current && !readyRef.current) {
+      holdTimeoutRef.current = setTimeout(() => {
+        if (inspectionRunningRef.current) {
+          setReady(true);
+        }
+      }, 500);
+    }
+  }
+};
+
+const handleKeyUp = (e) => {
+  const tag = e.target.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea') {
+    // Ignorar para inputs y textareas
+    return;
+  }
+
+  if (e.code === "Space") {
+    e.preventDefault();
+    clearTimeout(holdTimeoutRef.current);
+
+    if (showDnfRef.current) return;
+
+    if (readyRef.current) {
+      setTime(0);
+      setRunning(true);
+      setReady(false);
+      setInspectionRunning(false);
+      clearInterval(inspectionIntervalRef.current);
+    }
+    else if (inspectionRunningRef.current) {
+      // ...
+    }
+    else if (runningRef.current) {
+      setRunning(false);
+      if (timeRef.current > 0) {
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
+            ? {
+                ...session,
+                times: [...session.times, { time: timeRef.current, scramble: scramble }]
+              }
+            : session
+        );
+        setSessions(newSessions);
+      }
+      generateScramble();
+    }
+  }
+};
+
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -573,7 +581,6 @@ function App() {
     };
   }, [inspectionTime, holdToStart, inspectionDuration, scramble, activeSessionId]);
 
-  // Funciones para manejar sesiones
   const createNewSession = () => {
     const newSessionId = `session-${Date.now()}`;
     const newSession = {
@@ -584,7 +591,7 @@ function App() {
       dnfTimes: [],
       createdAt: new Date().toISOString()
     };
-    
+
     setSessions([...sessions, newSession]);
     setActiveSessionId(newSessionId);
   };
@@ -594,7 +601,7 @@ function App() {
   };
 
   const renameSession = (sessionId, newName) => {
-    setSessions(sessions.map(session => 
+    setSessions(sessions.map(session =>
       session.id === sessionId ? {...session, name: newName} : session
     ));
   };
@@ -604,22 +611,21 @@ function App() {
       alert("Debe haber al menos una sesión");
       return;
     }
-    
+
     if (window.confirm(`¿Estás seguro de que quieres eliminar esta sesión?`)) {
       const newSessions = sessions.filter(s => s.id !== sessionId);
       setSessions(newSessions);
-      
+
       if (activeSessionId === sessionId) {
         setActiveSessionId(newSessions[0].id);
       }
     }
   };
 
-  // Funciones para manejar tiempos
   const resetTimes = () => {
     if (window.confirm("¿Estás seguro de que quieres borrar todos los tiempos de esta sesión?")) {
-      const newSessions = sessions.map(session => 
-        session.id === activeSessionId 
+      const newSessions = sessions.map(session =>
+        session.id === activeSessionId
           ? {
               ...session,
               times: [],
@@ -631,10 +637,28 @@ function App() {
       setSessions(newSessions);
     }
   };
+function handleCreateSession() {
+  if (!newSessionName.trim()) return;
+
+  const newSession = {
+    id: Date.now().toString(),
+    name: newSessionName,
+    cubeType: newSessionCubeType,
+    times: [],
+    plusTwoTimes: [],
+    dnfTimes: []
+  };
+
+  setSessions(prev => [...prev, newSession]);
+  setActiveSessionId(newSession.id);
+  setShowNewSessionForm(false);
+  setNewSessionName("");
+  setNewSessionCubeType("3x3");
+}
 
   const deleteTime = (index) => {
-    const newSessions = sessions.map(session => 
-      session.id === activeSessionId 
+    const newSessions = sessions.map(session =>
+      session.id === activeSessionId
         ? {
             ...session,
             times: session.times.filter((_, i) => i !== index),
@@ -670,7 +694,6 @@ function App() {
     }
   };
 
-  // Funciones para el modal de detalles de tiempo
   const openTimeDetailModal = (index) => {
     setSelectedTimeDetail({
       index: index,
@@ -684,13 +707,13 @@ function App() {
     if (selectedTimeDetail) {
       const newPlusTwoTimes = [...activeSession.plusTwoTimes];
       const index = newPlusTwoTimes.indexOf(selectedTimeDetail.index);
-      
+
       if (index === -1) {
         newPlusTwoTimes.push(selectedTimeDetail.index);
         const newDnfTimes = activeSession.dnfTimes.filter(i => i !== selectedTimeDetail.index);
-        
-        const newSessions = sessions.map(session => 
-          session.id === activeSessionId 
+
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
             ? {
                 ...session,
                 plusTwoTimes: newPlusTwoTimes,
@@ -701,8 +724,8 @@ function App() {
         setSessions(newSessions);
       } else {
         newPlusTwoTimes.splice(index, 1);
-        const newSessions = sessions.map(session => 
-          session.id === activeSessionId 
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
             ? {
                 ...session,
                 plusTwoTimes: newPlusTwoTimes
@@ -718,13 +741,13 @@ function App() {
     if (selectedTimeDetail) {
       const newDnfTimes = [...activeSession.dnfTimes];
       const index = newDnfTimes.indexOf(selectedTimeDetail.index);
-      
+
       if (index === -1) {
         newDnfTimes.push(selectedTimeDetail.index);
         const newPlusTwoTimes = activeSession.plusTwoTimes.filter(i => i !== selectedTimeDetail.index);
-        
-        const newSessions = sessions.map(session => 
-          session.id === activeSessionId 
+
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
             ? {
                 ...session,
                 dnfTimes: newDnfTimes,
@@ -735,8 +758,8 @@ function App() {
         setSessions(newSessions);
       } else {
         newDnfTimes.splice(index, 1);
-        const newSessions = sessions.map(session => 
-          session.id === activeSessionId 
+        const newSessions = sessions.map(session =>
+          session.id === activeSessionId
             ? {
                 ...session,
                 dnfTimes: newDnfTimes
@@ -748,20 +771,19 @@ function App() {
     }
   };
 
-  // Efecto para verificar récords
   useEffect(() => {
     if (activeSession.times.length > 0 && bestTime !== null) {
       const currentTime = numericTimes[numericTimes.length - 1];
-     
+
       if (currentTime === bestTime && (previousBestTime === null || currentTime < previousBestTime)) {
         setPreviousBestTime(bestTime);
         fireConfetti();
       }
     }
   }, [activeSession.times, bestTime]);
-  
+
   const fireConfetti = () => {
-    const duration = 2 * 1000; 
+    const duration = 1 * 1000;
     const end = Date.now() + duration;
 
     const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
@@ -787,32 +809,13 @@ function App() {
       }
     })();
   };
+const [showNewSessionForm, setShowNewSessionForm] = useState(false);
+const [newSessionName, setNewSessionName] = useState("");
+const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
 
   return (
     <div className={`app-container ${fullScreenTimer ? "full-screen-mode" : ""}`} style={{ backgroundColor: bgColor }}>
-      {!fullScreenTimer && (
-        <div className="sessions-menu">
-          <select 
-            value={activeSessionId}
-            onChange={(e) => switchSession(e.target.value)}
-            className="session-selector"
-          >
-            {sessions.map(session => (
-              <option key={session.id} value={session.id}>
-                {session.name} ({session.times.length})
-              </option>
-            ))}
-          </select>
-          <button 
-            className="new-session-btn"
-            onClick={createNewSession}
-            title="Crear nueva sesión"
-          >
-            +
-          </button>
-        </div>
-      )}
-
+      
       {!fullScreenTimer && (
         <aside className="times-sidebar">
           <div className="sidebar-header">
@@ -824,6 +827,14 @@ function App() {
               <div className="stat-value">{bestTime !== null ? formatTimeFull(bestTime, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
             </div>
             <div className="stat-card">
+              <div className="stat-label">Peor</div>
+              <div className="stat-value">{worstTime !== null ? formatTimeFull(worstTime, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
+            </div>
+              <div className="stat-card">
+              <div className="stat-label">Total</div>
+              <div className="stat-value">{totalSolves}</div>
+            </div>
+            <div className="stat-card">
               <div className="stat-label">Ao5</div>
               <div className="stat-value">{ao5 !== null ? formatTimeFull(ao5, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
             </div>
@@ -831,7 +842,84 @@ function App() {
               <div className="stat-label">Ao12</div>
               <div className="stat-value">{ao12 !== null ? formatTimeFull(ao12, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
             </div>
+            <div className="stat-card">
+              <div className="stat-label">Promedio General</div>
+              <div className="stat-value">{overallAverage !== null ? formatTimeFull(overallAverage, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
+            </div>
           </div>
+          {!fullScreenTimer && (
+        <div className="sessions-menu">
+          <select
+            value={activeSessionId}
+            onChange={(e) => switchSession(e.target.value)}
+            className="session-selector"
+          >
+            {sessions.map(session => (
+              <option key={session.id} value={session.id}>
+                {session.name} ({session.times.length})
+              </option>
+            ))}
+          </select>
+<button
+  className="new-session-btn"
+  onClick={() => setShowNewSessionForm(true)}
+  title="Crear nueva sesión"
+>
+  +
+</button>
+{showNewSessionForm && (
+  <div className="modal-overlay" onClick={() => setShowNewSessionForm(false)}>
+    <div className="time-detail-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="time-detail-content">
+        <div className="time-detail-header">
+          <h3>Crear nueva sesión</h3>
+        </div>
+
+        <div className="time-detail-info">
+          <div className="time-detail-item">
+            <label className="time-detail-label">Nombre:</label>
+<input
+  type="text"
+  className="time-detail-input"
+  value={newSessionName}
+  onChange={(e) => setNewSessionName(e.target.value)}
+/>
+
+<select
+  className="time-detail-select"
+  value={newSessionCubeType}
+  onChange={(e) => setNewSessionCubeType(e.target.value)}
+>
+  <option value="2x2">2x2</option>
+  <option value="3x3">3x3</option>
+  <option value="4x4">4x4</option>
+  <option value="5x5">5x5</option>
+  <option value="Pyraminx">Pyraminx</option>
+</select>
+
+          </div>
+        </div>
+
+        <div className="time-detail-actions">
+          <button className="time-detail-btn" onClick={handleCreateSession}>
+            Crear
+          </button>
+          <button
+            className="time-detail-btn secondary"
+            onClick={() => setShowNewSessionForm(false)}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+        </div>
+      )}
+
           <div className="times-list">
             {activeSession.times.length === 0 ? (
               <div className="empty-state">
@@ -889,21 +977,19 @@ function App() {
               {inspectionTime
                 ? "Presiona espacio para inspección • Mantén para iniciar • Suelta para detener"
                 : holdToStart
-                  ? "Mantén espacio para preparar • Suelta para iniciar • Presiona nuevamente para detener"
-                  : "Presiona espacio para iniciar/detener"}
+                ? "Mantén espacio para preparar • Suelta para iniciar • Presiona nuevamente para detener"
+                : "Presiona espacio para iniciar/detener"}
             </p>
           </div>
         )}
 
-        {/* Visualización del cubo */}
         {!fullScreenTimer && (
-          <div className="cube-container"  style={{ backgroundColor: bgColor, padding: '10px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', position: 'fixed', bottom: '20px', right: '20px', zIndex: 10 }}>
+          <div className="cube-container" style={{ backgroundColor: bgColor, padding: '10px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', position: 'fixed', bottom: '20px', right: '20px', zIndex: 10 }}>
             <CubeVisualization cubeState={cubeState} />
           </div>
         )}
       </main>
 
-      {/* Modal de configuración */}
       {showSettings && (
         <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
           <div className="settings-content" onClick={(e) => e.stopPropagation()}>
@@ -939,7 +1025,6 @@ function App() {
                 🔀 Scramble
               </button>
             </div>
-
             <div className="settings-main">
               {activeSettingsTab === "apariencia" && (
                 <div className="settings-section">
@@ -1057,7 +1142,7 @@ function App() {
                         />
                         <span>{session.times.length} tiempos</span>
                         {sessions.length > 1 && (
-                          <button 
+                          <button
                             className="danger-button small"
                             onClick={() => deleteSession(session.id)}
                             disabled={session.id === activeSessionId}
@@ -1102,7 +1187,6 @@ function App() {
         </div>
       )}
 
-      {/* Modal de confirmación para borrar tiempo */}
       {showDeleteModal && (
         <div className="modal-overlay" onClick={handleOutsideClick}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -1125,7 +1209,6 @@ function App() {
         </div>
       )}
 
-      {/* Modal de detalles de tiempo */}
       {showTimeDetailModal && selectedTimeDetail && (
         <div className="modal-overlay" onClick={handleOutsideClick}>
           <div className="time-detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -1133,7 +1216,7 @@ function App() {
               <div className="time-detail-header">
                 <h3>Detalle del Tiempo #{selectedTimeDetail.index + 1}</h3>
               </div>
-              
+
               <div className="time-detail-info">
                 <div className="time-detail-item">
                   <div className="time-detail-label">Tiempo</div>
@@ -1141,31 +1224,31 @@ function App() {
                     {formatTimeFull(selectedTimeDetail.time, selectedTimeDetail.index, activeSession.plusTwoTimes, activeSession.dnfTimes)}
                   </div>
                 </div>
-                
+
                 <div className="time-detail-item">
                   <div className="time-detail-label">Scramble</div>
                   <div className="time-detail-value">{selectedTimeDetail.scramble}</div>
                 </div>
               </div>
-              
+
               <div className="time-detail-actions">
-                <button 
-                  className="time-detail-btn secondary" 
+                <button
+                  className="time-detail-btn secondary"
                   onClick={() => setShowTimeDetailModal(false)}
                 >
                   Cerrar
                 </button>
-                
-                <button 
-                  className={`time-detail-btn ${activeSession.plusTwoTimes.includes(selectedTimeDetail.index) ? 'active' : 'primary'}`} 
+
+                <button
+                  className={`time-detail-btn ${activeSession.plusTwoTimes.includes(selectedTimeDetail.index) ? 'active' : 'primary'}`}
                   onClick={applyPlusTwo}
                   disabled={activeSession.dnfTimes.includes(selectedTimeDetail.index)}
                 >
                   {activeSession.plusTwoTimes.includes(selectedTimeDetail.index) ? 'Quitar +2' : 'Aplicar +2'}
                 </button>
-                
-                <button 
-                  className={`time-detail-btn ${activeSession.dnfTimes.includes(selectedTimeDetail.index) ? 'danger-active' : 'danger'}`} 
+
+                <button
+                  className={`time-detail-btn ${activeSession.dnfTimes.includes(selectedTimeDetail.index) ? 'danger-active' : 'danger'}`}
                   onClick={applyDnf}
                 >
                   {activeSession.dnfTimes.includes(selectedTimeDetail.index) ? 'Quitar DNF' : 'Marcar DNF'}
