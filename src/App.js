@@ -852,10 +852,11 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
                   </div>
                 </div>
 
-                <div className="time-detail-item">
-                  <div className="time-detail-label">Scramble</div>
-                  <div className="time-detail-value">{selectedTimeDetail.scramble}</div>
-                </div>
+              <div className="time-detail-item">
+                <div className="time-detail-label">Scramble</div>
+                <div className="time-detail-value">{selectedTimeDetail.scramble}</div>
+                <CubeVisualization cubeState={parseScramble(selectedTimeDetail.scramble)} />
+              </div>
               </div>
 
               <div className="time-detail-actions">
