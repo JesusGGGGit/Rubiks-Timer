@@ -5,7 +5,6 @@ import SettingsModal from "./components/SettingsModal";
 import CubeVisualization from './components/CubeVisualization'; 
 import { parseScramble } from './utils/cubeUtils'; 
 
-
 function formatTimeDisplay(ms) {
   if (ms >= 0) {
     const hours = Math.floor(ms / 3600000);
@@ -50,8 +49,6 @@ function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
 
   return isPlusTwo ? `${timeStr} (+2)` : timeStr;
 }
-
-
 
 function App() {
   const [sessions, setSessions] = useState(() => {
@@ -102,6 +99,9 @@ function App() {
   const [showTimeDetailModal, setShowTimeDetailModal] = useState(false);
   const [selectedTimeDetail, setSelectedTimeDetail] = useState(null);
   const [previousBestTime, setPreviousBestTime] = useState(null);
+  const [showNewSessionForm, setShowNewSessionForm] = useState(false);
+  const [newSessionName, setNewSessionName] = useState("");
+  const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
 
   const numericTimes = activeSession.times.map((t, i) => {
     if (activeSession.dnfTimes.includes(i)) return null;
@@ -268,7 +268,7 @@ function App() {
         setShowDnf(true);
         setInspectionRunning(false);
 
-        const newSessions = sessions.map(session =>
+        setSessions(prevSessions => prevSessions.map(session =>
           session.id === activeSessionId
             ? {
                 ...session,
@@ -276,93 +276,86 @@ function App() {
                 dnfTimes: [...session.dnfTimes, session.times.length]
               }
             : session
-        );
-        setSessions(newSessions);
+        ));
 
         generateScramble();
       }
     }, 1000);
   };
 
- const handleKeyDown = (e) => {
-  const tag = e.target.tagName.toLowerCase();
-  if (tag === 'input' || tag === 'textarea') {
-    // Ignorar la barra espaciadora para inputs y textareas para que puedan escribir espacio
-    return;
-  }
+  const handleKeyDown = (e) => {
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
 
-  if (e.code === "Space") {
-    e.preventDefault();
+    if (e.code === "Space") {
+      e.preventDefault();
 
-    if (showDnfRef.current) {
-      setShowDnf(false);
-      if (inspectionTime) {
-        startInspection();
-      }
-      return;
-    }
-
-    if (!runningRef.current && !inspectionRunningRef.current && !readyRef.current) {
-      if (inspectionTime) {
-        startInspection();
-      } else {
-        holdTimeoutRef.current = setTimeout(() => {
-          setReady(true);
-        }, holdToStart ? 500 : 0);
-      }
-    }
-
-    if (inspectionRunningRef.current && !readyRef.current) {
-      holdTimeoutRef.current = setTimeout(() => {
-        if (inspectionRunningRef.current) {
-          setReady(true);
+      if (showDnfRef.current) {
+        setShowDnf(false);
+        if (inspectionTime) {
+          startInspection();
         }
-      }, 500);
-    }
-  }
-};
-
-const handleKeyUp = (e) => {
-  const tag = e.target.tagName.toLowerCase();
-  if (tag === 'input' || tag === 'textarea') {
-    // Ignorar para inputs y textareas
-    return;
-  }
-
-  if (e.code === "Space") {
-    e.preventDefault();
-    clearTimeout(holdTimeoutRef.current);
-
-    if (showDnfRef.current) return;
-
-    if (readyRef.current) {
-      setTime(0);
-      setRunning(true);
-      setReady(false);
-      setInspectionRunning(false);
-      clearInterval(inspectionIntervalRef.current);
-    }
-    else if (inspectionRunningRef.current) {
-      // ...
-    }
-    else if (runningRef.current) {
-      setRunning(false);
-      if (timeRef.current > 0) {
-        const newSessions = sessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                times: [...session.times, { time: timeRef.current, scramble: scramble }]
-              }
-            : session
-        );
-        setSessions(newSessions);
+        return;
       }
-      generateScramble();
-    }
-  }
-};
 
+      if (!runningRef.current && !inspectionRunningRef.current && !readyRef.current) {
+        if (inspectionTime) {
+          startInspection();
+        } else {
+          holdTimeoutRef.current = setTimeout(() => {
+            setReady(true);
+          }, holdToStart ? 500 : 0);
+        }
+      }
+
+      if (inspectionRunningRef.current && !readyRef.current) {
+        holdTimeoutRef.current = setTimeout(() => {
+          if (inspectionRunningRef.current) {
+            setReady(true);
+          }
+        }, 500);
+      }
+    }
+  };
+
+  const handleKeyUp = (e) => {
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    if (e.code === "Space") {
+      e.preventDefault();
+      clearTimeout(holdTimeoutRef.current);
+
+      if (showDnfRef.current) return;
+
+      if (readyRef.current) {
+        setTime(0);
+        setRunning(true);
+        setReady(false);
+        setInspectionRunning(false);
+        clearInterval(inspectionIntervalRef.current);
+      }
+      else if (inspectionRunningRef.current) {
+        // ...
+      }
+      else if (runningRef.current) {
+        setRunning(false);
+        if (timeRef.current > 0) {
+          setSessions(prevSessions => prevSessions.map(session =>
+            session.id === activeSessionId
+              ? {
+                  ...session,
+                  times: [...session.times, { time: timeRef.current, scramble: scramble }],
+                  plusTwoTimes: session.plusTwoTimes,
+                  dnfTimes: session.dnfTimes
+                }
+              : session
+          ));
+        }
+        generateScramble();
+      }
+    }
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -387,7 +380,7 @@ const handleKeyUp = (e) => {
       createdAt: new Date().toISOString()
     };
 
-    setSessions([...sessions, newSession]);
+    setSessions(prev => [...prev, newSession]);
     setActiveSessionId(newSessionId);
   };
 
@@ -396,7 +389,7 @@ const handleKeyUp = (e) => {
   };
 
   const renameSession = (sessionId, newName) => {
-    setSessions(sessions.map(session =>
+    setSessions(prevSessions => prevSessions.map(session =>
       session.id === sessionId ? {...session, name: newName} : session
     ));
   };
@@ -408,18 +401,20 @@ const handleKeyUp = (e) => {
     }
 
     if (window.confirm(`¿Estás seguro de que quieres eliminar esta sesión?`)) {
-      const newSessions = sessions.filter(s => s.id !== sessionId);
-      setSessions(newSessions);
+      setSessions(prevSessions => {
+        const newSessions = prevSessions.filter(s => s.id !== sessionId);
+        return newSessions;
+      });
 
       if (activeSessionId === sessionId) {
-        setActiveSessionId(newSessions[0].id);
+        setActiveSessionId(sessions[0].id);
       }
     }
   };
 
   const resetTimes = () => {
     if (window.confirm("¿Estás seguro de que quieres borrar todos los tiempos de esta sesión?")) {
-      const newSessions = sessions.map(session =>
+      setSessions(prevSessions => prevSessions.map(session =>
         session.id === activeSessionId
           ? {
               ...session,
@@ -428,41 +423,45 @@ const handleKeyUp = (e) => {
               dnfTimes: []
             }
           : session
-      );
-      setSessions(newSessions);
+      ));
     }
   };
-function handleCreateSession() {
-  if (!newSessionName.trim()) return;
 
-  const newSession = {
-    id: Date.now().toString(),
-    name: newSessionName,
-    cubeType: newSessionCubeType,
-    times: [],
-    plusTwoTimes: [],
-    dnfTimes: []
+  const handleCreateSession = () => {
+    if (!newSessionName.trim()) return;
+
+    const newSession = {
+      id: Date.now().toString(),
+      name: newSessionName,
+      cubeType: newSessionCubeType,
+      times: [],
+      plusTwoTimes: [],
+      dnfTimes: [],
+      createdAt: new Date().toISOString()
+    };
+
+    setSessions(prev => [...prev, newSession]);
+    setActiveSessionId(newSession.id);
+    setShowNewSessionForm(false);
+    setNewSessionName("");
+    setNewSessionCubeType("3x3");
   };
 
-  setSessions(prev => [...prev, newSession]);
-  setActiveSessionId(newSession.id);
-  setShowNewSessionForm(false);
-  setNewSessionName("");
-  setNewSessionCubeType("3x3");
-}
-
   const deleteTime = (index) => {
-    const newSessions = sessions.map(session =>
+    setSessions(prevSessions => prevSessions.map(session =>
       session.id === activeSessionId
         ? {
             ...session,
             times: session.times.filter((_, i) => i !== index),
-            plusTwoTimes: session.plusTwoTimes.filter(i => i !== index).map(i => i > index ? i - 1 : i),
-            dnfTimes: session.dnfTimes.filter(i => i !== index).map(i => i > index ? i - 1 : i)
+            plusTwoTimes: session.plusTwoTimes
+              .filter(i => i !== index)
+              .map(i => i > index ? i - 1 : i),
+            dnfTimes: session.dnfTimes
+              .filter(i => i !== index)
+              .map(i => i > index ? i - 1 : i)
           }
         : session
-    );
-    setSessions(newSessions);
+    ));
   };
 
   const requestDeleteTime = (index) => {
@@ -485,6 +484,7 @@ function handleCreateSession() {
     if (e.target.classList.contains("modal-overlay")) {
       setShowDeleteModal(false);
       setShowTimeDetailModal(false);
+      setShowNewSessionForm(false);
     }
   };
 
@@ -499,69 +499,33 @@ function handleCreateSession() {
 
   const applyPlusTwo = () => {
     if (selectedTimeDetail) {
-      const newPlusTwoTimes = [...activeSession.plusTwoTimes];
-      const index = newPlusTwoTimes.indexOf(selectedTimeDetail.index);
-
-      if (index === -1) {
-        newPlusTwoTimes.push(selectedTimeDetail.index);
-        const newDnfTimes = activeSession.dnfTimes.filter(i => i !== selectedTimeDetail.index);
-
-        const newSessions = sessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                plusTwoTimes: newPlusTwoTimes,
-                dnfTimes: newDnfTimes
-              }
-            : session
-        );
-        setSessions(newSessions);
-      } else {
-        newPlusTwoTimes.splice(index, 1);
-        const newSessions = sessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                plusTwoTimes: newPlusTwoTimes
-              }
-            : session
-        );
-        setSessions(newSessions);
-      }
+      setSessions(prevSessions => prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              plusTwoTimes: session.plusTwoTimes.includes(selectedTimeDetail.index)
+                ? session.plusTwoTimes.filter(i => i !== selectedTimeDetail.index)
+                : [...session.plusTwoTimes, selectedTimeDetail.index],
+              dnfTimes: session.dnfTimes.filter(i => i !== selectedTimeDetail.index)
+            }
+          : session
+      ));
     }
   };
 
   const applyDnf = () => {
     if (selectedTimeDetail) {
-      const newDnfTimes = [...activeSession.dnfTimes];
-      const index = newDnfTimes.indexOf(selectedTimeDetail.index);
-
-      if (index === -1) {
-        newDnfTimes.push(selectedTimeDetail.index);
-        const newPlusTwoTimes = activeSession.plusTwoTimes.filter(i => i !== selectedTimeDetail.index);
-
-        const newSessions = sessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                dnfTimes: newDnfTimes,
-                plusTwoTimes: newPlusTwoTimes
-              }
-            : session
-        );
-        setSessions(newSessions);
-      } else {
-        newDnfTimes.splice(index, 1);
-        const newSessions = sessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                dnfTimes: newDnfTimes
-              }
-            : session
-        );
-        setSessions(newSessions);
-      }
+      setSessions(prevSessions => prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              dnfTimes: session.dnfTimes.includes(selectedTimeDetail.index)
+                ? session.dnfTimes.filter(i => i !== selectedTimeDetail.index)
+                : [...session.dnfTimes, selectedTimeDetail.index],
+              plusTwoTimes: session.plusTwoTimes.filter(i => i !== selectedTimeDetail.index)
+            }
+          : session
+      ));
     }
   };
 
@@ -603,9 +567,6 @@ function handleCreateSession() {
       }
     })();
   };
-const [showNewSessionForm, setShowNewSessionForm] = useState(false);
-const [newSessionName, setNewSessionName] = useState("");
-const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
 
   return (
     <div className={`app-container ${fullScreenTimer ? "full-screen-mode" : ""}`} style={{ backgroundColor: bgColor }}>
@@ -624,7 +585,7 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
               <div className="stat-label">Peor</div>
               <div className="stat-value">{worstTime !== null ? formatTimeFull(worstTime, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
             </div>
-              <div className="stat-card">
+            <div className="stat-card">
               <div className="stat-label">Total</div>
               <div className="stat-value">{totalSolves}</div>
             </div>
@@ -641,78 +602,75 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
               <div className="stat-value">{overallAverage !== null ? formatTimeFull(overallAverage, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--"}</div>
             </div>
           </div>
-          {!fullScreenTimer && (
-        <div className="sessions-menu">
-          <select
-            value={activeSessionId}
-            onChange={(e) => switchSession(e.target.value)}
-            className="session-selector"
-          >
-            {sessions.map(session => (
-              <option key={session.id} value={session.id}>
-                {session.name} ({session.times.length})
-              </option>
-            ))}
-          </select>
-<button
-  className="new-session-btn"
-  onClick={() => setShowNewSessionForm(true)}
-  title="Crear nueva sesión"
->
-  +
-</button>
-{showNewSessionForm && (
-  <div className="modal-overlay" onClick={() => setShowNewSessionForm(false)}>
-    <div className="time-detail-modal" onClick={(e) => e.stopPropagation()}>
-      <div className="time-detail-content">
-        <div className="time-detail-header">
-          <h3>Crear nueva sesión</h3>
-        </div>
-
-        <div className="time-detail-info">
-          <div className="time-detail-item">
-            <label className="time-detail-label">Nombre:</label>
-<input
-  type="text"
-  className="time-detail-input"
-  value={newSessionName}
-  onChange={(e) => setNewSessionName(e.target.value)}
-/>
-
-<select
-  className="time-detail-select"
-  value={newSessionCubeType}
-  onChange={(e) => setNewSessionCubeType(e.target.value)}
->
-  <option value="2x2">2x2</option>
-  <option value="3x3">3x3</option>
-  <option value="4x4">4x4</option>
-  <option value="5x5">5x5</option>
-  <option value="Pyraminx">Pyraminx</option>
-</select>
-
+          
+          <div className="sessions-menu">
+            <select
+              value={activeSessionId}
+              onChange={(e) => switchSession(e.target.value)}
+              className="session-selector"
+            >
+              {sessions.map(session => (
+                <option key={session.id} value={session.id}>
+                  {session.name} ({session.times.length})
+                </option>
+              ))}
+            </select>
+            <button
+              className="new-session-btn"
+              onClick={() => setShowNewSessionForm(true)}
+              title="Crear nueva sesión"
+            >
+              +
+            </button>
           </div>
-        </div>
 
-        <div className="time-detail-actions">
-          <button className="time-detail-btn" onClick={handleCreateSession}>
-            Crear
-          </button>
-          <button
-            className="time-detail-btn secondary"
-            onClick={() => setShowNewSessionForm(false)}
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+          {showNewSessionForm && (
+            <div className="modal-overlay" onClick={handleOutsideClick}>
+              <div className="time-detail-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="time-detail-content">
+                  <div className="time-detail-header">
+                    <h3>Crear nueva sesión</h3>
+                  </div>
 
+                  <div className="time-detail-info">
+                    <div className="time-detail-item">
+                      <label className="time-detail-label">Nombre:</label>
+                      <input
+                        type="text"
+                        className="time-detail-input"
+                        value={newSessionName}
+                        onChange={(e) => setNewSessionName(e.target.value)}
+                      />
 
-        </div>
-      )}
+                      <select
+                        className="time-detail-select"
+                        value={newSessionCubeType}
+                        onChange={(e) => setNewSessionCubeType(e.target.value)}
+                      >
+                        <option value="2x2">2x2</option>
+                        <option value="3x3">3x3</option>
+                        <option value="4x4">4x4</option>
+                        <option value="5x5">5x5</option>
+                        <option value="Pyraminx">Pyraminx</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="time-detail-actions">
+                    <button className="time-detail-btn" onClick={handleCreateSession}>
+                      Crear
+                    </button>
+                    <button
+                      className="time-detail-btn secondary"
+                      onClick={() => setShowNewSessionForm(false)}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="times-list">
             {activeSession.times.length === 0 ? (
@@ -736,6 +694,7 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
           </div>
         </aside>
       )}
+      
       <main className={`main-content ${fullScreenTimer ? "full-screen" : ""}`}>
         {!fullScreenTimer && (
           <>
@@ -752,6 +711,7 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
             </div>
           </>
         )}
+        
         <div className={`timer-container ${fullScreenTimer ? "full-screen" : ""}`}>
           {showDnf ? (
             <div className={`dnf-mode ${inspectionRunning ? "inspecting" : ""}`} style={{ color: textColor }}>
@@ -778,42 +738,52 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
         )}
 
         {!fullScreenTimer && (
-          <div className="cube-container" style={{ backgroundColor: bgColor, padding: '10px', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', position: 'fixed', bottom: '20px', right: '20px', zIndex: 10 }}>
+          <div className="cube-container" style={{ 
+            backgroundColor: bgColor, 
+            padding: '10px', 
+            borderRadius: '8px', 
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)', 
+            position: 'fixed', 
+            bottom: '20px', 
+            right: '20px', 
+            zIndex: 10 
+          }}>
             <CubeVisualization cubeState={cubeState} />
           </div>
         )}
       </main>
 
       <SettingsModal
-      showSettings={showSettings}
-      setShowSettings={setShowSettings}
-      activeSettingsTab={activeSettingsTab}
-      setActiveSettingsTab={setActiveSettingsTab}
-      bgColor={bgColor}
-      setBgColor={setBgColor}
-      textColor={textColor}
-      setTextColor={setTextColor}
-      scrambleColor={scrambleColor}
-      setScrambleColor={setScrambleColor}
-      timerSize={timerSize}
-      setTimerSize={setTimerSize}
-      holdToStart={holdToStart}
-      setHoldToStart={setHoldToStart}
-      inspectionTime={inspectionTime}
-      setInspectionTime={setInspectionTime}
-      inspectionDuration={inspectionDuration}
-      setInspectionDuration={setInspectionDuration}
-      dontAskAgain={dontAskAgain}
-      setDontAskAgain={setDontAskAgain}
-      resetTimes={resetTimes}
-      sessions={sessions}
-      renameSession={renameSession}
-      deleteSession={deleteSession}
-      activeSessionId={activeSessionId}
-      createNewSession={createNewSession}
-      scrambleSize={scrambleSize}
-      setScrambleSize={setScrambleSize}
-    />
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        activeSettingsTab={activeSettingsTab}
+        setActiveSettingsTab={setActiveSettingsTab}
+        bgColor={bgColor}
+        setBgColor={setBgColor}
+        textColor={textColor}
+        setTextColor={setTextColor}
+        scrambleColor={scrambleColor}
+        setScrambleColor={setScrambleColor}
+        timerSize={timerSize}
+        setTimerSize={setTimerSize}
+        holdToStart={holdToStart}
+        setHoldToStart={setHoldToStart}
+        inspectionTime={inspectionTime}
+        setInspectionTime={setInspectionTime}
+        inspectionDuration={inspectionDuration}
+        setInspectionDuration={setInspectionDuration}
+        dontAskAgain={dontAskAgain}
+        setDontAskAgain={setDontAskAgain}
+        resetTimes={resetTimes}
+        sessions={sessions}
+        renameSession={renameSession}
+        deleteSession={deleteSession}
+        activeSessionId={activeSessionId}
+        createNewSession={createNewSession}
+        scrambleSize={scrambleSize}
+        setScrambleSize={setScrambleSize}
+      />
+      
       {showDeleteModal && (
         <div className="modal-overlay" onClick={handleOutsideClick}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -852,11 +822,11 @@ const [newSessionCubeType, setNewSessionCubeType] = useState("3x3");
                   </div>
                 </div>
 
-              <div className="time-detail-item">
-                <div className="time-detail-label">Scramble</div>
-                <div className="time-detail-value">{selectedTimeDetail.scramble}</div>
-                <CubeVisualization cubeState={parseScramble(selectedTimeDetail.scramble)} />
-              </div>
+                <div className="time-detail-item">
+                  <div className="time-detail-label">Scramble</div>
+                  <div className="time-detail-value">{selectedTimeDetail.scramble}</div>
+                  <CubeVisualization cubeState={parseScramble(selectedTimeDetail.scramble)} />
+                </div>
               </div>
 
               <div className="time-detail-actions">
