@@ -297,8 +297,8 @@ function App() {
     }
   }, [running]);
 
-const generateScramble = useCallback(async (attempts = 20) => {
-  const cubeType = activeSession.cubeType || "333"; // Default a 3x3 si no está definido
+const generateScramble = useCallback(async (attempts = 1) => {
+  const cubeType = activeSession.cubeType || "333";
   const eventMap = {
     "2x2": "222",
     "3x3": "333",
@@ -315,7 +315,7 @@ const generateScramble = useCallback(async (attempts = 20) => {
       if (typeof window.randomScrambleForEvent !== "function") throw new Error("Scramble library not ready");
       const scr = await window.randomScrambleForEvent(event);
       setScramble(scr.toString());
-      setCubeState(parseScramble(scr.toString()));
+      setCubeState(parseScramble(scr.toString(), event));
       return;
     } catch (e) {
       
