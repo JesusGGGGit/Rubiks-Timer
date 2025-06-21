@@ -60,8 +60,12 @@ body, html {
 }
 
 .sidebar-header h2 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 600;
+}
+.sidebar-header {
+  flex-direction: column;
+  gap: 10px; 
 }
 
 .delete-button {
@@ -91,6 +95,7 @@ body, html {
   border-radius: 8px;
   padding: 12px;
   text-align: center;
+  cursor: pointer;
 }
 
 .stat-label {
@@ -109,6 +114,19 @@ body, html {
 .times-list {
   flex: 1;
   overflow-y: auto;
+   position: relative;
+  z-index: 1;
+}
+
+
+.times-list::-webkit-scrollbar {
+  display: none;
+}
+
+.times-list::after {
+  content: '';
+  height: 60px;
+  margin-top: -60px;
 }
 
 .time-entry {
@@ -120,6 +138,8 @@ body, html {
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .time-entry:hover {
@@ -898,59 +918,22 @@ input[type="range"]::-webkit-slider-thumb {
   z-index: 10;
 }
 
-.cube-visualization {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.cube-face-row {
-  display: flex;
-  margin-bottom: 2px;
-}
-
-.cube-face {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 2px;
-  margin: 0 2px;
-}
-
-.cube-face.placeholder {
-  width: 60px;
-  height: 60px;
-  visibility: hidden;
-}
-
-.cube-sticker {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #333;
-  box-sizing: border-box;
-}
-
-
-.up-face .cube-sticker { background-color: white; }
-.left-face .cube-sticker { background-color: orange; }
-.front-face .cube-sticker { background-color: green; }
-.right-face .cube-sticker { background-color: red; }
-.back-face .cube-sticker { background-color: blue; }
-.down-face .cube-sticker { background-color: yellow; }
 
 .sessions-menu {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 10px;
   background-color: var(--panel-bg);
   border-radius: 8px;
 }
 
+
 .session-selector {
   width: 100%;
   padding: 10px 12px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-family: 'Roboto Mono', monospace;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
@@ -1124,3 +1107,277 @@ margin: 10px 0px 20px ;
   margin-top: auto; 
 }
 
+.stat-detail-modal {
+  display: flex;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: var(--dark);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-detail-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  color: var(--light);
+}
+
+.stat-detail-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-detail-header h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--light);
+}
+
+.stat-detail-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--light);
+}
+
+.stat-detail-description {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  color: var(--gray);
+}
+
+.stat-times-list {
+  margin-top: 24px;
+}
+
+.stat-times-list h4 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--light);
+}
+
+.stat-time-entry {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.stat-time-entry:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.stat-time-info {
+  display: flex;
+  gap: 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.95rem;
+}
+
+.stat-time-index {
+  color: var(--gray);
+}
+
+.stat-time-value {
+  color: var(--light);
+}
+
+.stat-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.stat-detail-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--light);
+}
+
+.stat-detail-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* Mejoras para el selector de ordenación */
+.sort-controls {
+  margin: 15px 0;
+  width: 100%;
+}
+
+.sort-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--panel-bg);
+  padding: 10px 16px;
+  border-radius: 8px;
+  width: fit-content; 
+  margin: 0 auto 15px; 
+}
+
+
+.sort-label {
+  font-size: 0.85rem;
+  color: var(--gray);
+  white-space: nowrap;
+}
+
+.sort-select-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.sort-select-wrapper::after {
+  content: "▼";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: var(--gray);
+  pointer-events: none;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 8px 30px 8px 12px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--light);
+  transition: all 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.sort-select:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+}
+
+.sort-select option {
+  background-color: var(--dark);
+  color: var(--light);
+  padding: 8px;
+}
+
+/* Contenedor principal mejorado */
+.cube-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Visualización del cubo */
+.cube-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cube-face-row {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.cube-face {
+  display: grid;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.placeholder {
+  visibility: hidden;
+}
+
+.cube-sticker {
+  border-radius: 2px;
+  box-shadow: 
+    inset 0 0 3px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: 1px solid black;
+}
+
+/* Colores más vibrantes */
+.cube-sticker[style*="white"] { background-color: #FFFFFF !important; }
+.cube-sticker[style*="yellow"] { background-color: #FFD700 !important; }
+.cube-sticker[style*="orange"] { background-color: #FF8C00 !important; }
+.cube-sticker[style*="red"] { background-color: #FF0000 !important; }
+.cube-sticker[style*="green"] { background-color: #00AA00 !important; }
+.cube-sticker[style*="blue"] { background-color: #0066FF !important; }
+
+/* Efecto hover para mejor interacción */
+.cube-sticker:hover {
+  transform: scale(1.15);
+  z-index: 2;
+  transition: transform 0.1s ease;
+}
+
+/* Control de zoom para cubos grandes */
+.cube-controls {
+  position: absolute;
+  top: -25px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.zoom-btn {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .cube-container {
+    position: static;
+    margin: 20px auto;
+    width: fit-content;
+  }
+  
+  .cube-visualization {
+    --base-size: 22px;
+  }
+}

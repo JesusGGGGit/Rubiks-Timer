@@ -157,5 +157,8 @@ function rotateFace(cubeState, face) {
       cubeState.F[6] = temp[2];
       break;
     }
+     default:
+    // manejar caso no esperado o no hacer nada
+    break;
   }
 }
