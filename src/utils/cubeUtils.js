@@ -1,12 +1,14 @@
 export function parseScramble(scramble, cubeType = "333") {
-  const is222 = cubeType === "222";
-  const is333 = cubeType === "333";
-
-  if (!is222 && !is333) {
-    throw new Error(`parseScramble: Tipo de cubo '${cubeType}' no soportado todavía.`);
+  const numericCubes = ["222", "333", "444", "555", "666", "777"];
+  
+  let size = 0;
+  if (numericCubes.includes(cubeType)) {
+    size = parseInt(cubeType[0]);
+  } else {
+    return getDefaultCubeStateForType(cubeType);
   }
 
-  const stickersPerFace = is222 ? 4 : 9;
+  const stickersPerFace = size * size;
 
   const cubeState = {
     U: Array(stickersPerFace).fill('white'),
@@ -21,24 +23,151 @@ export function parseScramble(scramble, cubeType = "333") {
     return cubeState;
   }
 
-  const moves = scramble.trim().split(/\s+/);
-
-  moves.forEach(move => {
-    if (!move) return;
-    const face = move[0];
-    const isPrime = move.includes("'");
-    const isDouble = move.includes("2");
-    const turns = isDouble ? 2 : (isPrime ? 3 : 1);
-    for (let i = 0; i < turns; i++) {
-      is222 ? rotateFace2x2(cubeState, face) : rotateFace(cubeState, face);
-    }
-  });
+  if (cubeType === "222" || cubeType === "333") {
+    const moves = scramble.trim().split(/\s+/);
+    moves.forEach(move => {
+      if (!move) return;
+      const face = move[0];
+      const isPrime = move.includes("'");
+      const isDouble = move.includes("2");
+      const turns = isDouble ? 2 : (isPrime ? 3 : 1);
+      for (let i = 0; i < turns; i++) {
+        if (cubeType === "222") rotateFace2x2(cubeState, face);
+        else if (cubeType === "333") rotateFace3x3(cubeState, face);
+      }
+    });
+  }
 
   return cubeState;
 }
 
+function getDefaultCubeStateForType(cubeType) {
+  switch(cubeType) {
+    case "pyram": 
+      return {
+        U: Array(9).fill('green'),
+        L: Array(9).fill('blue'),
+        R: Array(9).fill('red'),
+        B: Array(9).fill('yellow')
+      };
+    default:
+      return {};
+  }
+}
+
+
+function rotateFace2x2(cubeState, face) {
+  const fc = cubeState[face];
+  cubeState[face] = [
+    fc[2], fc[0],
+    fc[3], fc[1]
+  ];
+
+  let temp;
+  switch (face) {
+    case 'U': {
+      temp = [cubeState.F[0], cubeState.F[1]];
+      cubeState.F[0] = cubeState.R[0];
+      cubeState.F[1] = cubeState.R[1];
+
+      cubeState.R[0] = cubeState.B[0];
+      cubeState.R[1] = cubeState.B[1];
+
+      cubeState.B[0] = cubeState.L[0];
+      cubeState.B[1] = cubeState.L[1];
+
+      cubeState.L[0] = temp[0];
+      cubeState.L[1] = temp[1];
+      break;
+    }
+
+    case 'D': {
+      temp = [cubeState.F[2], cubeState.F[3]];
+      cubeState.F[2] = cubeState.L[2];
+      cubeState.F[3] = cubeState.L[3];
+
+      cubeState.L[2] = cubeState.B[2];
+      cubeState.L[3] = cubeState.B[3];
+
+      cubeState.B[2] = cubeState.R[2];
+      cubeState.B[3] = cubeState.R[3];
+
+      cubeState.R[2] = temp[0];
+      cubeState.R[3] = temp[1];
+      break;
+    }
+
+    case 'F': {
+      temp = [cubeState.U[2], cubeState.U[3]];
+      cubeState.U[2] = cubeState.L[3];
+      cubeState.U[3] = cubeState.L[1];
+
+      cubeState.L[1] = cubeState.D[0];
+      cubeState.L[3] = cubeState.D[1];
+
+      cubeState.D[0] = cubeState.R[2];
+      cubeState.D[1] = cubeState.R[0];
+
+      cubeState.R[2] = temp[1];
+      cubeState.R[0] = temp[0];
+      break;
+    }
+
+    case 'B': {
+      temp = [cubeState.U[0], cubeState.U[1]];
+      cubeState.U[0] = cubeState.R[1];
+      cubeState.U[1] = cubeState.R[3];
+
+      cubeState.R[1] = cubeState.D[2];
+      cubeState.R[3] = cubeState.D[3];
+
+      cubeState.D[2] = cubeState.L[2];
+      cubeState.D[3] = cubeState.L[0];
+
+      cubeState.L[2] = temp[0];
+      cubeState.L[0] = temp[1];
+      break;
+    }
+
+    case 'R': {
+      temp = [cubeState.U[1], cubeState.U[3]];
+      cubeState.U[1] = cubeState.F[1];
+      cubeState.U[3] = cubeState.F[3];
+
+      cubeState.F[1] = cubeState.D[1];
+      cubeState.F[3] = cubeState.D[3];
+
+      cubeState.D[1] = cubeState.B[2];
+      cubeState.D[3] = cubeState.B[0];
+
+      cubeState.B[0] = temp[1];
+      cubeState.B[2] = temp[0];
+      break;
+    }
+
+    case 'L': {
+      temp = [cubeState.U[0], cubeState.U[2]];
+      cubeState.U[0] = cubeState.B[3];
+      cubeState.U[2] = cubeState.B[1];
+
+      cubeState.B[1] = cubeState.D[2];
+      cubeState.B[3] = cubeState.D[0];
+
+      cubeState.D[0] = cubeState.F[0];
+      cubeState.D[2] = cubeState.F[2];
+
+      cubeState.F[0] = temp[0];
+      cubeState.F[2] = temp[1];
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+
 // Rota una cara de un cubo 3x3
-function rotateFace(cubeState, face) {
+function rotateFace3x3(cubeState, face) {
   const fc = cubeState[face];
   cubeState[face] = [
     fc[6], fc[3], fc[0],
@@ -172,111 +301,4 @@ function rotateFace(cubeState, face) {
       break;
   }
 }
-function rotateFace2x2(cubeState, face) {
-  const fc = cubeState[face];
-  cubeState[face] = [
-    fc[2], fc[0],
-    fc[3], fc[1]
-  ];
 
-  let temp;
-  switch (face) {
-    case 'U': {
-      temp = [cubeState.F[0], cubeState.F[1]];
-      cubeState.F[0] = cubeState.R[0];
-      cubeState.F[1] = cubeState.R[1];
-
-      cubeState.R[0] = cubeState.B[0];
-      cubeState.R[1] = cubeState.B[1];
-
-      cubeState.B[0] = cubeState.L[0];
-      cubeState.B[1] = cubeState.L[1];
-
-      cubeState.L[0] = temp[0];
-      cubeState.L[1] = temp[1];
-      break;
-    }
-
-    case 'D': {
-      temp = [cubeState.F[2], cubeState.F[3]];
-      cubeState.F[2] = cubeState.L[2];
-      cubeState.F[3] = cubeState.L[3];
-
-      cubeState.L[2] = cubeState.B[2];
-      cubeState.L[3] = cubeState.B[3];
-
-      cubeState.B[2] = cubeState.R[2];
-      cubeState.B[3] = cubeState.R[3];
-
-      cubeState.R[2] = temp[0];
-      cubeState.R[3] = temp[1];
-      break;
-    }
-
-    case 'F': {
-      temp = [cubeState.U[2], cubeState.U[3]];
-      cubeState.U[2] = cubeState.L[3];
-      cubeState.U[3] = cubeState.L[1];
-
-      cubeState.L[1] = cubeState.D[0];
-      cubeState.L[3] = cubeState.D[1];
-
-      cubeState.D[0] = cubeState.R[2];
-      cubeState.D[1] = cubeState.R[0];
-
-      cubeState.R[2] = temp[1];
-      cubeState.R[0] = temp[0];
-      break;
-    }
-
-    case 'B': {
-      temp = [cubeState.U[0], cubeState.U[1]];
-      cubeState.U[0] = cubeState.R[1];
-      cubeState.U[1] = cubeState.R[3];
-
-      cubeState.R[1] = cubeState.D[2];
-      cubeState.R[3] = cubeState.D[3];
-
-      cubeState.D[2] = cubeState.L[2];
-      cubeState.D[3] = cubeState.L[0];
-
-      cubeState.L[2] = temp[0];
-      cubeState.L[0] = temp[1];
-      break;
-    }
-
-    case 'R': {
-      temp = [cubeState.U[1], cubeState.U[3]];
-      cubeState.U[1] = cubeState.F[1];
-      cubeState.U[3] = cubeState.F[3];
-
-      cubeState.F[1] = cubeState.D[1];
-      cubeState.F[3] = cubeState.D[3];
-
-      cubeState.D[1] = cubeState.B[2];
-      cubeState.D[3] = cubeState.B[0];
-
-      cubeState.B[0] = temp[1];
-      cubeState.B[2] = temp[0];
-      break;
-    }
-
-    case 'L': {
-      temp = [cubeState.U[0], cubeState.U[2]];
-      cubeState.U[0] = cubeState.B[3];
-      cubeState.U[2] = cubeState.B[1];
-
-      cubeState.B[1] = cubeState.D[2];
-      cubeState.B[3] = cubeState.D[0];
-
-      cubeState.D[0] = cubeState.F[0];
-      cubeState.D[2] = cubeState.F[2];
-
-      cubeState.F[0] = temp[0];
-      cubeState.F[2] = temp[1];
-      break;
-    }
-    default:
-      break;
-  }
-}

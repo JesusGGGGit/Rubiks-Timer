@@ -1,0 +1,95 @@
+/* Cube Visualization Styles */
+.cube-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.cube-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cube-face-row {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.cube-face {
+  display: grid;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.placeholder {
+  visibility: hidden;
+}
+
+.cube-sticker {
+  border-radius: 2px;
+  box-shadow: 
+    inset 0 0 3px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: 1px solid black;
+}
+
+/* Sticker colors */
+.cube-sticker[style*="white"] { background-color: #FFFFFF !important; }
+.cube-sticker[style*="yellow"] { background-color: #FFD700 !important; }
+.cube-sticker[style*="orange"] { background-color: #FF8C00 !important; }
+.cube-sticker[style*="red"] { background-color: #FF0000 !important; }
+.cube-sticker[style*="green"] { background-color: #00AA00 !important; }
+.cube-sticker[style*="blue"] { background-color: #0066FF !important; }
+
+/* Hover effects */
+.cube-sticker:hover {
+  transform: scale(1.15);
+  z-index: 2;
+  transition: transform 0.1s ease;
+}
+
+/* Cube controls */
+.cube-controls {
+  position: absolute;
+  top: -25px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.zoom-btn {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .cube-container {
+    position: static;
+    margin: 20px auto;
+    width: fit-content;
+  }
+  
+  .cube-visualization {
+    --base-size: 22px;
+  }
+}

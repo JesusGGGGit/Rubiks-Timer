@@ -1,7 +1,13 @@
 import React from 'react';
+import './CubeVisualization.css';
 
 export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
-  const cubeSize = parseInt(cubeType[0]) || 3;
+  // Extraemos el tamaño solo si es 2 o 3, sino no renderizamos nada
+  const cubeSize = parseInt(cubeType[0]);
+  if (cubeSize !== 2 && cubeSize !== 3) {
+    return
+  }
+
   const stickersPerFace = cubeSize * cubeSize;
 
   const safeCubeState = {
@@ -13,30 +19,14 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
     D: cubeState.D?.slice(0, stickersPerFace) || Array(stickersPerFace).fill('yellow')
   };
 
-  const getStickerSize = () => {
-    switch (cubeSize) {
-      case 2: return '40px';
-      case 3: return '30px';
-      case 4: return '22px';
-      case 5: return '18px';
-      case 6: return '15px';
-      case 7: return '13px';
-      default: return '30px';
-    }
-  };
-
-  const stickerSize = getStickerSize();
+  const stickerSize = cubeSize === 2 ? '40px' : '30px';
   const gapSize = '1px';
-
   const faceWidth = `calc(${cubeSize} * ${stickerSize} + ${(cubeSize - 1)} * ${gapSize})`;
 
   const renderPlaceholder = () => (
     <div
       className="cube-face placeholder"
-      style={{
-        width: faceWidth,
-        height: faceWidth
-      }}
+      style={{ width: faceWidth, height: faceWidth }}
     ></div>
   );
 
@@ -50,8 +40,8 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
         gap: gapSize,
         width: faceWidth,
         height: faceWidth,
-        padding: cubeSize >= 4 ? '2px' : '0',
-        border: cubeSize >= 4 ? '1px solid #333' : 'none'
+        padding: '0',
+        border: 'none'
       }}
     >
       {safeCubeState[face].map((color, i) => (
@@ -62,7 +52,7 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
             backgroundColor: color,
             width: stickerSize,
             height: stickerSize,
-            border: cubeSize >= 4 ? '1px solid rgba(0,0,0,0.1)' : 'none'
+            border: 'none'
           }}
         ></div>
       ))}
