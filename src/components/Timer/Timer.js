@@ -11,8 +11,19 @@ import StatDetailModal from '../StatDetailModal/StatDetailModal';
 import Modals from '../TimesModal/TimesModal';
 import TimesSidebar from '../SideBar/SideBar';
 import MainContent from '../MainContent/MainContent';
+import { useTheme } from '../../Hooks/useTheme';
+
 
 function App() {
+const {
+  bgColor, setBgColor,
+  textColor, setTextColor,
+  scrambleColor, setScrambleColor,
+  timerSize, setTimerSize,
+  scrambleSize, setScrambleSize
+} = useTheme();
+
+
 
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem("sessions");
@@ -33,9 +44,8 @@ function App() {
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
   const stats = calculateStats(activeSession.times, activeSession.plusTwoTimes, activeSession.dnfTimes);
 
-  const savedBgColor = localStorage.getItem("bgColor") || "#ffffff";
-  const savedTextColor = localStorage.getItem("textColor") || "#000000";
-  const savedScrambleColor = localStorage.getItem("scrambleColor") || "#000000";
+
+
   const [time, setTime] = useState(0);
   const [running, setRunning] = useState(false);
   const [inspectionRunning, setInspectionRunning] = useState(false);
@@ -44,17 +54,14 @@ function App() {
   const [cubeState, setCubeState] = useState(parseScramble(""));
   const [fullScreenTimer, setFullScreenTimer] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [bgColor, setBgColor] = useState(savedBgColor);
-  const [textColor, setTextColor] = useState(savedTextColor);
-  const [scrambleColor, setScrambleColor] = useState(savedScrambleColor);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [timeToDeleteIndex, setTimeToDeleteIndex] = useState(null);
   const [dontAskAgain, setDontAskAgain] = useState(() => {
     return localStorage.getItem("dontAskDelete") === "true";
   });
   const [activeSettingsTab, setActiveSettingsTab] = useState("apariencia");
-  const [timerSize, setTimerSize] = useState(() => parseInt(localStorage.getItem("timerSize")) || 48);
-  const [scrambleSize, setScrambleSize] = useState(() => parseInt(localStorage.getItem("scrambleSize")) || 18);
+
   const [inspectionTime, setInspectionTime] = useState(() => localStorage.getItem("inspectionTime") === "true");
   const [inspectionDuration, setInspectionDuration] = useState(() => parseInt(localStorage.getItem("inspectionDuration")) || 15);
   const [holdToStart, setHoldToStart] = useState(() => localStorage.getItem("holdToStart") !== "false");
@@ -105,34 +112,13 @@ function App() {
     localStorage.setItem("activeSessionId", activeSessionId);
   }, [activeSessionId]);
 
-  useEffect(() => {
-    localStorage.setItem("bgColor", bgColor);
-    document.documentElement.style.setProperty('--bg-color', bgColor);
-  }, [bgColor]);
 
-  useEffect(() => {
-    localStorage.setItem("textColor", textColor);
-    document.documentElement.style.setProperty('--text-color', textColor);
-  }, [textColor]);
-
-  useEffect(() => {
-    localStorage.setItem("scrambleColor", scrambleColor);
-    document.documentElement.style.setProperty('--scramble-color', scrambleColor);
-  }, [scrambleColor]);
 
   useEffect(() => {
     localStorage.setItem("dontAskDelete", dontAskAgain ? "true" : "false");
   }, [dontAskAgain]);
 
-  useEffect(() => {
-    localStorage.setItem("timerSize", timerSize);
-    document.documentElement.style.setProperty('--timer-font-size', `${timerSize}px`);
-  }, [timerSize]);
 
-  useEffect(() => {
-    localStorage.setItem("scrambleSize", scrambleSize);
-    document.documentElement.style.setProperty('--scramble-font-size', `${scrambleSize}px`);
-  }, [scrambleSize]);
 
   useEffect(() => {
     localStorage.setItem("inspectionTime", inspectionTime);
