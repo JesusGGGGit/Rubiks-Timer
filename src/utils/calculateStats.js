@@ -37,7 +37,7 @@ export function calculateStats(times, plusTwoTimes, dnfTimes) {
   const ao100 = times.length >= 100 ? average(validTimes.slice(-100)) : null;
 
   // Mean of 3
-  const mo3 = times.length >= 3 ? average(validTimes.slice(-3)) : null;
+  const mo3 = overallAverage;
 
   // Best and worst ao5/ao12
   let bestAo5 = null, worstAo5 = null;

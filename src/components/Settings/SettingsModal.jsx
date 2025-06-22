@@ -1,4 +1,3 @@
-import React from "react";
 import "./SettingsModal.css"; 
 
 export default function SettingsModal({

@@ -1,0 +1,106 @@
+.stat-detail-modal {
+  display: flex;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: var(--dark);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-detail-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  color: var(--light);
+}
+
+.stat-detail-content::-webkit-scrollbar {
+  display: none;
+}
+
+.stat-detail-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-detail-header h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--light);
+}
+
+.stat-detail-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--light);
+}
+
+.stat-detail-description {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  color: var(--gray);
+}
+
+.stat-times-list {
+  margin-top: 24px;
+}
+
+.stat-times-list h4 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--light);
+}
+
+.stat-time-entry {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.stat-time-entry:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.stat-time-info {
+  display: flex;
+  gap: 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.95rem;
+}
+
+.stat-time-index {
+  color: var(--gray);
+}
+
+.stat-time-value {
+  color: var(--light);
+}
+
+.stat-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.stat-detail-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--light);
+}
+
+.stat-detail-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}

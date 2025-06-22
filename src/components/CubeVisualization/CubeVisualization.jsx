@@ -1,4 +1,3 @@
-import React from 'react';
 import './CubeVisualization.css';
 
 export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
