@@ -505,7 +505,12 @@ input[type="range"]::-webkit-slider-thumb {
 
 .app-container.full-screen-mode .times-sidebar,
 .app-container.full-screen-mode .scramble-display,
-.app-container.full-screen-mode .instructions {
+.app-container.full-screen-mode .instructions,
+.app-container.full-screen-mode nav {
+  display: none;
+}
+
+:fullscreen nav {
   display: none;
 }
 
