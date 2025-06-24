@@ -1,0 +1,180 @@
+:root {
+  --primary: #3a86ff;
+  --primary-dark: #2667cc;
+  --danger: #ff3860;
+  --success: #06d6a0;
+  --warning: #ffbe0b;
+  --dark: #1a1a2e;
+  --darker: #121212;
+  --light: #ffffff;
+  --gray: #6c757d;
+  --light-gray: #e9ecef;
+  --panel-bg: rgba(255, 255, 255, 0.05);
+}
+
+.estadisticasWrapper {
+  background-color: var(--dark);
+  color: var(--light);
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.estadisticasContainer {
+  max-width: 1400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Session selector */
+.sessionSelector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--panel-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.25);
+}
+
+.sessionSelector h2 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.sessionSelect {
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--dark);
+  color: var(--light);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.sessionSelect:hover, .sessionSelect:focus {
+  background-color: var(--primary-dark);
+  outline: none;
+}
+
+/* Grid for stats and charts */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 2rem;
+}
+
+/* Cards */
+.statsCard {
+  background-color: var(--panel-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.3);
+  padding: 1.5rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  color: var(--light);
+  transition: transform 0.3s ease;
+}
+
+.statsCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.4);
+}
+
+.statsCard h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+/* Quick Summary */
+.quickSummary .quickStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.quickStat {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--dark);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  box-shadow: inset 0 0 8px rgb(0 0 0 / 0.3);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.statLabel {
+  color: var(--gray);
+}
+
+.statValue {
+  color: var(--light);
+  font-weight: 700;
+}
+
+/* Colors for stdDev */
+.statValue[style] {
+  font-weight: 700;
+  /* color inline handled by component */
+}
+
+/* Chart container for consistent height */
+.chartContainer {
+  height: 320px;
+  width: 100%;
+}
+
+/* Detailed stats grid */
+.detailedStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.statItem {
+  background-color: var(--dark);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px rgb(0 0 0 / 0.3);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.statItem .statLabel {
+  color: var(--gray);
+}
+
+.statItem .statValue {
+  color: var(--light);
+  font-weight: 700;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .sessionSelector {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .quickSummary .quickStats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detailedStatsGrid {
+    grid-template-columns: 1fr;
+  }
+}

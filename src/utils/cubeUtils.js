@@ -22,23 +22,32 @@ export function parseScramble(scramble, cubeType = "333") {
   if (!scramble || typeof scramble !== 'string' || scramble.includes("Generating") || scramble.includes("Failed")) {
     return cubeState;
   }
+if (cubeType === "222" || cubeType === "333") {
+  const moves = scramble.trim().split(/\s+/);
+  moves.forEach(move => {
+    if (!move) return;
+    const face = move[0];
+    const isPrime = move.includes("'");
+    const isDouble = move.includes("2");
+    const turns = isDouble ? 2 : (isPrime ? 3 : 1);
 
-  if (cubeType === "222" || cubeType === "333") {
-    const moves = scramble.trim().split(/\s+/);
-    moves.forEach(move => {
-      if (!move) return;
-      const face = move[0];
-      const isPrime = move.includes("'");
-      const isDouble = move.includes("2");
-      const turns = isDouble ? 2 : (isPrime ? 3 : 1);
-      for (let i = 0; i < turns; i++) {
-        if (cubeType === "222") rotateFace2x2(cubeState, face);
-        else if (cubeType === "333") rotateFace3x3(cubeState, face);
+    for (let i = 0; i < turns; i++) {
+      switch (cubeType) {
+        case "222":
+          rotateFace2x2(cubeState, face);
+          break;
+        case "333":
+          rotateFace3x3(cubeState, face);
+          break;
+        default:
+          // No hacer nada o lanzar error si quieres
+          break;
       }
-    });
-  }
+    }
+  });
+}
+return cubeState;
 
-  return cubeState;
 }
 
 function getDefaultCubeStateForType(cubeType) {
