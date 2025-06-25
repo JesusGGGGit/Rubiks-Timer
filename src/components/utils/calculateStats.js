@@ -1,17 +1,20 @@
+
 export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
-  const validTimes = times.map((t, i) => ({
-    time: t.time,
-    scramble: t.scramble,
-    timestamp: t.timestamp,
-    index: i,
-    isDNF: dnfTimes.includes(i),
-    isPlusTwo: plusTwoTimes.includes(i)
-  }));
+const validTimes = times.map((t, i) => ({
+  time: t.time,
+  scramble: t.scramble,
+  timestamp: t.timestamp,
+  index: i,
+  isDNF: dnfTimes.includes(i),
+  isPlusTwo: plusTwoTimes.includes(i)
+}));
+
 
   const numericTimes = validTimes
     .map(t => t.isDNF ? null : (t.isPlusTwo ? t.time + 2000 : t.time))
     .filter(t => t !== null);
 
+  // Cálculos básicos
   const bestTime = numericTimes.length > 0 ? Math.min(...numericTimes) : null;
   const worstTime = numericTimes.length > 0 ? Math.max(...numericTimes) : null;
   const totalSolves = times.length;
@@ -28,6 +31,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   })() : null;
 
+  // Función para calcular promedios
   const average = (slice) => {
     const nums = slice.map(t => {
       if (t.isDNF) return null;
@@ -44,12 +48,14 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     return nums.reduce((a, b) => a + b, 0) / nums.length;
   };
 
+  // Promedios móviles
   const ao5 = times.length >= 5 ? average(validTimes.slice(-5)) : null;
   const ao12 = times.length >= 12 ? average(validTimes.slice(-12)) : null;
   const ao50 = times.length >= 50 ? average(validTimes.slice(-50)) : null;
   const ao100 = times.length >= 100 ? average(validTimes.slice(-100)) : null;
   const mo3 = numericTimes.length >= 3 ? average(validTimes.slice(-3)) : null;
 
+  // Cálculo de todas las series de promedios móviles
   const calculateMovingAverages = (windowSize) => {
     const averages = [];
     for (let i = windowSize - 1; i < validTimes.length; i++) {
@@ -65,6 +71,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
   const ao50s = calculateMovingAverages(50);
   const ao100s = calculateMovingAverages(100);
 
+  // Mejores/peores promedios
   const bestAo5 = ao5s.length > 0 ? Math.min(...ao5s) : null;
   const worstAo5 = ao5s.length > 0 ? Math.max(...ao5s) : null;
   const bestAo12 = ao12s.length > 0 ? Math.min(...ao12s) : null;
@@ -74,6 +81,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
   const bestAo100 = ao100s.length > 0 ? Math.min(...ao100s) : null;
   const worstAo100 = ao100s.length > 0 ? Math.max(...ao100s) : null;
 
+  // Índices de mejores/peores tiempos
   const bestTimeIndex = bestTime !== null ? validTimes.findIndex(t => 
     !t.isDNF && (t.isPlusTwo ? t.time + 2000 : t.time) === bestTime
   ) : null;
@@ -87,17 +95,20 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
   const bestAo12Index = bestAo12 !== null ? ao12s.indexOf(bestAo12) : null;
   const worstAo12Index = worstAo12 !== null ? ao12s.indexOf(worstAo12) : null;
 
+  // Desviación estándar y consistencia
   const stdDev = numericTimes.length > 1 ?
     Math.sqrt(numericTimes.map(x => Math.pow(x - overallAverage, 2)).reduce((a, b) => a + b) / numericTimes.length) : null;
 
   const consistencyIndex = stdDev !== null && overallAverage !== null ? stdDev / overallAverage : null;
 
+  // Contadores por rangos de tiempo
   const countSub10 = numericTimes.filter(t => t < 10000).length;
   const countSub15 = numericTimes.filter(t => t < 15000).length;
   const countSub20 = numericTimes.filter(t => t < 20000).length;
   const countSub30 = numericTimes.filter(t => t < 30000).length;
   const countOver30 = numericTimes.filter(t => t >= 30000).length;
 
+  // Medias de últimos solves
   const meanOfLast5 = numericTimes.length >= 5 ? 
     numericTimes.slice(-5).reduce((a, b) => a + b, 0) / 5 : null;
   const meanOfLast12 = numericTimes.length >= 12 ? 
@@ -107,9 +118,11 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
   const meanOfLast100 = numericTimes.length >= 100 ? 
     numericTimes.slice(-100).reduce((a, b) => a + b, 0) / 100 : null;
 
+  // Tiempo total y rango
   const totalTime = numericTimes.reduce((a, b) => a + b, 0);
   const timeRange = numericTimes.length > 0 ? worstTime - bestTime : null;
 
+  // Tasa de mejora
   let improvementRate = null;
   if (numericTimes.length >= 10) {
     const first10Percent = numericTimes.slice(0, Math.floor(numericTimes.length * 0.1));
@@ -119,6 +132,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     improvementRate = ((firstAvg - lastAvg) / firstAvg) * 100;
   }
 
+  // Rachas y PBs
   let currentStreakNoDNF = 0;
   let bestStreakNoDNF = 0;
   let currentDNFStreak = 0;
@@ -134,7 +148,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
   validTimes.forEach((t, i) => {
     const timeValue = t.isDNF ? Infinity : (t.isPlusTwo ? t.time + 2000 : t.time);
 
-    // PB tracking and max solves without improvement
+    // PB tracking
     if (timeValue < currentPB) {
       currentPB = timeValue;
       pbHistory.push({
@@ -149,6 +163,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
       currentSolvesWithoutPB++;
     }
 
+    // Rachas sin DNF
     if (!t.isDNF) {
       currentStreakNoDNF++;
       if (currentStreakNoDNF > bestStreakNoDNF) bestStreakNoDNF = currentStreakNoDNF;
@@ -156,6 +171,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
       currentStreakNoDNF = 0;
     }
 
+    // Rachas de DNF
     if (t.isDNF) {
       currentDNFStreak++;
       if (currentDNFStreak > worstDNFStreak) worstDNFStreak = currentDNFStreak;
@@ -163,6 +179,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
       currentDNFStreak = 0;
     }
 
+    // Rachas de mejora
     if (i > 0) {
       const prevTime = validTimes[i-1].isDNF ? Infinity : 
                       (validTimes[i-1].isPlusTwo ? validTimes[i-1].time + 2000 : validTimes[i-1].time);
@@ -175,7 +192,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     }
   });
 
-  // Percentile calculation helper
+  // Cálculo de percentiles
   const percentile = (arr, p) => {
     if (arr.length === 0) return null;
     const sorted = [...arr].sort((a, b) => a - b);
@@ -188,63 +205,373 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     return lower + (upper - lower) * (idx - Math.floor(idx));
   };
 
-  // Calculate percentiles
   const p25 = percentile(numericTimes, 25);
-  const p50 = median; // ya calculado
+  const p50 = median;
   const p75 = percentile(numericTimes, 75);
   const p90 = percentile(numericTimes, 90);
 
-  // Ratio PBs vs solves
-  const totalPBs = pbHistory.length;
-  const pbRatio = totalSolves > 0 ? (totalPBs / totalSolves * 100).toFixed(1) : null;
+  // Estadísticas de distribución
+  const distributionStats = {
+    timeDistribution: (() => {
+      const distribution = {};
+      const binSize = 5000; // 5 segundos
+      numericTimes.forEach(t => {
+        const bin = Math.floor(t / binSize) * binSize;
+        distribution[bin] = (distribution[bin] || 0) + 1;
+      });
+      return distribution;
+    })(),
+    
+    skewness: (() => {
+      if (numericTimes.length < 3) return null;
+      const n = numericTimes.length;
+      const mean = overallAverage;
+      const std = stdDev;
+      const cubedDifferences = numericTimes.map(t => Math.pow((t - mean) / std, 3));
+      return (cubedDifferences.reduce((a, b) => a + b, 0) * n) / ((n - 1) * (n - 2));
+    })(),
+    
+    kurtosis: (() => {
+      if (numericTimes.length < 4) return null;
+      const n = numericTimes.length;
+      const mean = overallAverage;
+      const std = stdDev;
+      const fourthPowerDiffs = numericTimes.map(t => Math.pow((t - mean) / std, 4));
+      return (n * (n + 1) / ((n - 1) * (n - 2) * (n - 3))) * 
+             fourthPowerDiffs.reduce((a, b) => a + b, 0) - 
+             (3 * Math.pow(n - 1, 2)) / ((n - 2) * (n - 3));
+    })(),
+    
+    mode: (() => {
+      const frequencyMap = {};
+      let maxCount = 0;
+      let modeValue = null;
+      
+      numericTimes.forEach(t => {
+        const rounded = Math.round(t / 100) * 100;
+        frequencyMap[rounded] = (frequencyMap[rounded] || 0) + 1;
+        
+        if (frequencyMap[rounded] > maxCount) {
+          maxCount = frequencyMap[rounded];
+          modeValue = rounded;
+        }
+      });
+      
+      return modeValue;
+    })(),
+    
+    iqr: p75 !== null && p25 !== null ? p75 - p25 : null,
+    
+    outlierCount: (() => {
+      const threshold = overallAverage !== null && stdDev !== null ? overallAverage + 2 * stdDev : null;
+      return threshold !== null ? numericTimes.filter(t => t > threshold).length : null;
+    })()
+  };
 
-  // Average and median excluyendo +2 penalties
-  const timesExcludingPlusTwo = validTimes
-    .filter(t => !t.isDNF && !t.isPlusTwo)
-    .map(t => t.time);
+  // Estadísticas de tendencia
+  const trendStats = {
+    linearTrend: (() => {
+      if (numericTimes.length < 2) return null;
+      
+      const n = numericTimes.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      
+      numericTimes.forEach((t, i) => {
+        sumX += i;
+        sumY += t;
+        sumXY += i * t;
+        sumX2 += i * i;
+      });
+      
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      
+      return {
+        slope,
+        intercept,
+        rSquared: (() => {
+          const yMean = sumY / n;
+          let ssTot = 0;
+          let ssRes = 0;
+          
+          numericTimes.forEach((t, i) => {
+            ssTot += Math.pow(t - yMean, 2);
+            const yPred = slope * i + intercept;
+            ssRes += Math.pow(t - yPred, 2);
+          });
+          
+          return 1 - (ssRes / ssTot);
+        })()
+      };
+    })(),
+    
+    relativeImprovement: (() => {
+      if (numericTimes.length < 10) return null;
+      const first10 = numericTimes.slice(0, Math.floor(numericTimes.length * 0.1));
+      const last10 = numericTimes.slice(-Math.floor(numericTimes.length * 0.1));
+      
+      const avgFirst = first10.reduce((a, b) => a + b, 0) / first10.length;
+      const avgLast = last10.reduce((a, b) => a + b, 0) / last10.length;
+      
+      return {
+        absolute: avgFirst - avgLast,
+        relative: ((avgFirst - avgLast) / avgFirst) * 100
+      };
+    })(),
+    
+    improvementPer100: improvementRate ? improvementRate * (100 / numericTimes.length) : null
+  };
 
-  const avgNoPlusTwo = timesExcludingPlusTwo.length > 0 ?
-    timesExcludingPlusTwo.reduce((a, b) => a + b, 0) / timesExcludingPlusTwo.length : null;
+  // Estadísticas de consistencia avanzadas
+  const advancedConsistency = {
+    coefficientOfVariation: stdDev !== null && overallAverage !== null ? 
+      (stdDev / overallAverage) * 100 : null,
+    
+    within1StdDev: stdDev !== null && overallAverage !== null ?
+      numericTimes.filter(t => Math.abs(t - overallAverage) <= stdDev).length / numericTimes.length * 100 : null,
+    within2StdDev: stdDev !== null && overallAverage !== null ?
+      numericTimes.filter(t => Math.abs(t - overallAverage) <= 2 * stdDev).length / numericTimes.length * 100 : null,
+    within3StdDev: stdDev !== null && overallAverage !== null ?
+      numericTimes.filter(t => Math.abs(t - overallAverage) <= 3 * stdDev).length / numericTimes.length * 100 : null,
+    
+    percentileConsistency: p75 !== null && p25 !== null ? p75 / p25 : null,
+    
+    ao5Variability: ao5s.length > 1 ? (() => {
+      const diffs = [];
+      for (let i = 1; i < ao5s.length; i++) {
+        diffs.push(Math.abs(ao5s[i] - ao5s[i-1]));
+      }
+      return diffs.reduce((a, b) => a + b, 0) / diffs.length;
+    })() : null
+  };
 
-  const medianNoPlusTwo = (() => {
-    if (timesExcludingPlusTwo.length === 0) return null;
-    const sorted = [...timesExcludingPlusTwo].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  })();
+  // Estadísticas de PB
+  const pbStats = {
+    totalPBs: pbHistory.length,
+    pbFrequency: (() => {
+      if (pbHistory.length < 2) return null;
+      const intervals = [];
+      for (let i = 1; i < pbHistory.length; i++) {
+        intervals.push(pbHistory[i].index - pbHistory[i-1].index);
+      }
+      return {
+        average: intervals.reduce((a, b) => a + b, 0) / intervals.length,
+        median: (() => {
+          const sorted = [...intervals].sort((a, b) => a - b);
+          const mid = Math.floor(sorted.length / 2);
+          return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        })(),
+        longest: Math.max(...intervals),
+        shortest: Math.min(...intervals)
+      };
+    })(),
+    
+    pbImprovementRates: (() => {
+      if (pbHistory.length < 2) return null;
+      const improvements = [];
+      for (let i = 1; i < pbHistory.length; i++) {
+        improvements.push(((pbHistory[i-1].time - pbHistory[i].time) / pbHistory[i-1].time) * 100);
+      }
+      return {
+        average: improvements.reduce((a, b) => a + b, 0) / improvements.length,
+        largest: Math.max(...improvements),
+        smallest: Math.min(...improvements)
+      };
+    })(),
+    
+    pbTimeIntervals: (() => {
+      if (pbHistory.length < 2) return null;
+      const intervals = [];
+      for (let i = 1; i < pbHistory.length; i++) {
+        intervals.push((new Date(pbHistory[i].timestamp) - new Date(pbHistory[i-1].timestamp)) / (1000 * 60 * 60 * 24));
+      }
+      return {
+        daysAverage: intervals.reduce((a, b) => a + b, 0) / intervals.length,
+        daysMedian: (() => {
+          const sorted = [...intervals].sort((a, b) => a - b);
+          const mid = Math.floor(sorted.length / 2);
+          return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        })(),
+        longestDays: Math.max(...intervals),
+        shortestDays: Math.min(...intervals)
+      };
+    })()
+  };
 
-  // DNFs distribution (early vs late)
-  const dnfPositions = dnfTimes;
-  const earlyDnfs = dnfPositions.filter(i => i < totalSolves * 0.5).length;
-  const lateDnfs = totalDnfs - earlyDnfs;
+  // Estadísticas temporales
+  const timeStats = {
+    timeOfDayDistribution: (() => {
+      const hours = Array(24).fill(0);
+      validTimes.forEach(t => {
+        if (t.timestamp) {
+          const date = new Date(t.timestamp);
+          const hour = date.getHours();
+          hours[hour]++;
+        }
+      });
+      return hours.map((count, hour) => ({ hour, count }));
+    })(),
+    
+    performanceByHour: (() => {
+      const hourStats = {};
+      validTimes.forEach(t => {
+        if (t.timestamp && !t.isDNF) {
+          const date = new Date(t.timestamp);
+          const hour = date.getHours();
+          const timeValue = t.isPlusTwo ? t.time + 2000 : t.time;
+          
+          if (!hourStats[hour]) {
+            hourStats[hour] = {
+              count: 0,
+              total: 0,
+              times: []
+            };
+          }
+          
+          hourStats[hour].count++;
+          hourStats[hour].total += timeValue;
+          hourStats[hour].times.push(timeValue);
+        }
+      });
+      
+      const result = [];
+      for (let hour = 0; hour < 24; hour++) {
+        if (hourStats[hour]) {
+          const avg = hourStats[hour].total / hourStats[hour].count;
+          const sorted = [...hourStats[hour].times].sort((a, b) => a - b);
+          const median = sorted.length % 2 === 0 ? 
+            (sorted[sorted.length/2 - 1] + sorted[sorted.length/2]) / 2 : 
+            sorted[Math.floor(sorted.length/2)];
+          
+          result.push({
+            hour,
+            count: hourStats[hour].count,
+            average: avg,
+            median,
+            best: Math.min(...hourStats[hour].times),
+            worst: Math.max(...hourStats[hour].times)
+          });
+        }
+      }
+      
+      return result;
+    })(),
+    
+    performanceByWeekday: (() => {
+      const weekdayStats = {};
+      validTimes.forEach(t => {
+        if (t.timestamp && !t.isDNF) {
+          const date = new Date(t.timestamp);
+          const weekday = date.getDay();
+          const timeValue = t.isPlusTwo ? t.time + 2000 : t.time;
+          
+          if (!weekdayStats[weekday]) {
+            weekdayStats[weekday] = {
+              count: 0,
+              total: 0,
+              times: []
+            };
+          }
+          
+          weekdayStats[weekday].count++;
+          weekdayStats[weekday].total += timeValue;
+          weekdayStats[weekday].times.push(timeValue);
+        }
+      });
+      
+      const weekdays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      return weekdays.map((day, index) => {
+        if (weekdayStats[index]) {
+          const avg = weekdayStats[index].total / weekdayStats[index].count;
+          const sorted = [...weekdayStats[index].times].sort((a, b) => a - b);
+          const median = sorted.length % 2 === 0 ? 
+            (sorted[sorted.length/2 - 1] + sorted[sorted.length/2]) / 2 : 
+            sorted[Math.floor(sorted.length/2)];
+          
+          return {
+            weekday: day,
+            count: weekdayStats[index].count,
+            average: avg,
+            median,
+            best: Math.min(...weekdayStats[index].times),
+            worst: Math.max(...weekdayStats[index].times)
+          };
+        }
+        return null;
+      }).filter(Boolean);
+    })()
+  };
 
-  // Mode of time ranges (define ranges of 5s, can ajustar)
-  const rangeCounts = {};
-  numericTimes.forEach(t => {
-    const range = Math.floor(t / 5000) * 5000;
-    rangeCounts[range] = (rangeCounts[range] || 0) + 1;
-  });
-  const modeRange = Object.entries(rangeCounts).reduce((max, curr) => curr[1] > max[1] ? curr : max, [null, 0])[0];
-
-  // Outliers detection (times > mean + 2*stdDev)
-  const outlierThreshold = overallAverage !== null && stdDev !== null ? overallAverage + 2 * stdDev : null;
-  const outlierCount = outlierThreshold !== null ? numericTimes.filter(t => t > outlierThreshold).length : null;
-
-  // Weighted average (más peso a tiempos recientes)
-  let weightedSum = 0;
-  let weightTotal = 0;
-  numericTimes.forEach((t, idx) => {
-    const weight = idx + 1; // peso incremental
-    weightedSum += t * weight;
-    weightTotal += weight;
-  });
-  const weightedAverage = weightTotal > 0 ? weightedSum / weightTotal : null;
-
-  // Time of day stats (ya implementado arriba, mantengo)
-
-  // Genero listas AO5 y AO12 (ya hecho arriba)
+  // Estadísticas de scrambles
+  const scrambleStats = {
+    averageScrambleLength: (() => {
+      const lengths = validTimes.map(t => t.scramble ? t.scramble.split(' ').length : 0);
+      return lengths.reduce((a, b) => a + b, 0) / lengths.length;
+    })(),
+    
+    commonMoves: (() => {
+      const moveCounts = {};
+      validTimes.forEach(t => {
+        if (t.scramble) {
+          t.scramble.split(' ').forEach(move => {
+            const cleanMove = move.replace(/[2']/g, '');
+            moveCounts[cleanMove] = (moveCounts[cleanMove] || 0) + 1;
+          });
+        }
+      });
+      
+      return Object.entries(moveCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+    })(),
+    
+    scrambleLengthVsTime: (() => {
+      const data = validTimes
+        .filter(t => !t.isDNF && t.scramble)
+        .map(t => ({
+          length: t.scramble.split(' ').length,
+          time: t.isPlusTwo ? t.time + 2000 : t.time
+        }));
+      
+      if (data.length < 2) return null;
+      
+      const n = data.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      
+      data.forEach(d => {
+        sumX += d.length;
+        sumY += d.time;
+        sumXY += d.length * d.time;
+        sumX2 += d.length * d.length;
+      });
+      
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      
+      return {
+        slope,
+        intercept,
+        correlation: (() => {
+          const xMean = sumX / n;
+          const yMean = sumY / n;
+          let numerator = 0;
+          let denomX = 0;
+          let denomY = 0;
+          
+          data.forEach(d => {
+            numerator += (d.length - xMean) * (d.time - yMean);
+            denomX += Math.pow(d.length - xMean, 2);
+            denomY += Math.pow(d.time - yMean, 2);
+          });
+          
+          return numerator / Math.sqrt(denomX * denomY);
+        })()
+      };
+    })()
+  };
 
   return {
+    // Estadísticas básicas
     bestTime,
     worstTime,
     totalSolves,
@@ -258,12 +585,14 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     stdDev,
     consistencyIndex,
 
+    // Promedios
     ao5,
     ao12,
     ao50,
     ao100,
     mo3,
 
+    // Mejores/peores promedios
     bestAo5,
     worstAo5,
     bestAo12,
@@ -273,6 +602,7 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     bestAo100,
     worstAo100,
 
+    // Índices
     bestTimeIndex,
     worstTimeIndex,
     bestAo5Index,
@@ -280,56 +610,55 @@ export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
     bestAo12Index,
     worstAo12Index,
 
+    // Rangos de tiempo
     countSub10,
     countSub15,
     countSub20,
     countSub30,
     countOver30,
 
+    // Medias de últimos solves
     meanOfLast5,
     meanOfLast12,
     meanOfLast50,
     meanOfLast100,
 
+    // Tiempo total y rango
     totalTime,
     timeRange,
 
+    // Tasa de mejora
     improvementRate,
 
+    // Rachas
     bestNonDNFStreak: bestStreakNoDNF,
     worstDNFStreak,
     bestImprovementStreak,
 
+    // PBs
     pbHistory,
-    totalPBs,
-    pbRatio,
+    totalPBs: pbHistory.length,
     timeSinceLastPB: pbHistory.length > 0 ? 
       new Date() - new Date(pbHistory[pbHistory.length-1].timestamp) : null,
+    maxSolvesWithoutPB,
 
-
-    // Nuevas estadísticas añadidas
+    // Percentiles
     percentile25: p25,
     percentile50: p50,
     percentile75: p75,
     percentile90: p90,
 
-    avgNoPlusTwo,
-    medianNoPlusTwo,
+    // Nuevas estadísticas
+    distributionStats,
+    trendStats,
+    advancedConsistency,
+    pbStats,
+    timeStats,
+    scrambleStats,
 
-    earlyDnfs,
-    lateDnfs,
-
-    modeRange,
-    outlierCount,
-
-    maxSolvesWithoutPB,
-
-    weightedAverage,
-
-    // Raw data
+    // Datos brutos
     numericTimes,
     validTimes,
-
     ao5s,
     ao12s,
     ao50s,
