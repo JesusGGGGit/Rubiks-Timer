@@ -1,6 +1,6 @@
 import CubeVisualization from '../CubeVisualization/CubeVisualization';
-import { parseScramble } from '../../utils/cubeUtils'; 
-import {formatTimeFull } from '../../utils/formatUtils';
+import { parseScramble } from '..//utils/cubeUtils'; 
+import {formatTimeFull } from '../utils/formatUtils';
 
 
 const Modals = ({

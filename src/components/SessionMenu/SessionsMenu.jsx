@@ -1,4 +1,4 @@
-export default function SessionsMenu({ sessions, activeSessionId, switchSession, openNewSessionForm }) {
+export default function SessionsMenu({ sessions, activeSessionId, switchSession, openNewSessionForm, showNewSessionButton = true }) {
   return (
     <div className="sessions-menu">
       <div className="sort-select-wrapper">
@@ -14,13 +14,15 @@ export default function SessionsMenu({ sessions, activeSessionId, switchSession,
           ))}
         </select>
       </div>
-      <button
-        className="new-session-btn"
-        onClick={openNewSessionForm}
-        title="Crear nueva sesión"
-      >
-        +
-      </button>
+      {showNewSessionButton && (
+        <button
+          className="new-session-btn"
+          onClick={openNewSessionForm}
+          title="Crear nueva sesión"
+        >
+          +
+        </button>
+      )}
     </div>
   );
 }

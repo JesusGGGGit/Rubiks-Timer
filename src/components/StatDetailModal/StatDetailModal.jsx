@@ -1,5 +1,5 @@
-import { formatTimeFull } from '../../utils/formatUtils';
-import { getStdDevDescription, getStdDevColor } from '../../utils/Descriptions';
+import { formatTimeFull } from '../utils/formatUtils';
+import { getStdDevDescription, getStdDevColor } from '../utils/Descriptions';
 import './StatDetailModal.css';
 
 function StatDetailModal({ selectedStat, stats, activeSession, setShowStatsModal, openTimeDetailModal }) {

@@ -1,360 +1,273 @@
-// Estadisticas.js
-import React from 'react';
-import { useSessions } from '../../Hooks/useSessions';
-import { calculateStats } from '../../utils/calculateStats';
-import { formatTimeDisplay, formatTimeFull } from '../../utils/formatUtils';
-import { getSortedTimes } from '../../utils/sorting';
-import { getStdDevColor } from '../../utils/Descriptions';
-import { Link } from 'react-router-dom';
-import { useTheme } from '../../Hooks/useTheme';
+import React, { useState, useEffect } from 'react';
+import { useSessions } from '../Hooks/useSessions';
+import { calculateStats } from '../utils/calculateStats';
+import { formatTimeFull } from '../utils/formatUtils';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, Cell, PieChart, Pie, Sector
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  LineChart, Line,
+  PieChart, Pie, Cell,
+  AreaChart, Area,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  Legend,
 } from 'recharts';
+import { Timer, TrendingUp, Trophy, Flame, AlertTriangle, CheckCircle } from 'lucide-react';
 import styles from './Estadisticas.module.css';
 
-const Estadisticas = () => {
-  const { sessions, activeSession, activeSessionId, switchSession } = useSessions();
-  const { textColor, bgColor } = useTheme();
-  const stats = calculateStats(activeSession?.times || [], activeSession?.plusTwoTimes || [], activeSession?.dnfTimes || []);
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
-  const sessionData = sessions.map(session => ({
-    name: session.name,
-    solves: session.times.length,
-    best: calculateStats(session.times, session.plusTwoTimes, session.dnfTimes).bestTime,
-    avg: calculateStats(session.times, session.plusTwoTimes, session.dnfTimes).overallAverage
-  }));
+export default function SessionStatsAdvanced() {
+  const {
+    sessions,
+    activeSessionId,
+    setActiveSessionId,
+    activeSession,
+  } = useSessions();
 
-  const timeDistributionData = () => {
-    if (!stats.numericTimes || stats.numericTimes.length === 0) return [];
+  const [stats, setStats] = useState(null);
 
-    const maxTime = Math.max(...stats.numericTimes);
-    const minTime = Math.min(...stats.numericTimes);
-    const range = maxTime - minTime;
-    const step = range / 5;
-
-    const buckets = [];
-    for (let i = 0; i < 5; i++) {
-      const lower = minTime + (i * step);
-      const upper = minTime + ((i + 1) * step);
-      const count = stats.numericTimes.filter(t => t >= lower && t < upper).length;
-
-      buckets.push({
-        name: `${formatTimeDisplay(lower)} - ${formatTimeDisplay(upper)}`,
-        count
-      });
+  useEffect(() => {
+    if (activeSession) {
+      const { times = [], plusTwoTimes = [], dnfTimes = [] } = activeSession;
+      const stats = calculateStats(times, plusTwoTimes, dnfTimes);
+      setStats(stats);
     }
+  }, [activeSession]);
 
-    return buckets;
+  const handleSessionChange = (e) => {
+    setActiveSessionId(e.target.value);
   };
 
-  const progressionData = () => {
-    if (!activeSession?.times || activeSession.times.length === 0) return [];
+  if (!activeSession) return <p>No hay sesión activa</p>;
+  if (!stats) return <p>Cargando estadísticas...</p>;
 
-    return activeSession.times.map((time, index) => ({
-      solve: index + 1,
-      time: activeSession.dnfTimes.includes(index) ? null :
-        (activeSession.plusTwoTimes.includes(index) ? time.time + 2000 : time.time),
-      isDNF: activeSession.dnfTimes.includes(index),
-      isPlusTwo: activeSession.plusTwoTimes.includes(index)
-    })).filter(item => item.time !== null);
-  };
+  // Datos para barras últimos 50 tiempos
+  const histogramData = stats.numericTimes?.slice(-50).map((t, i) => ({
+    name: `#${i + 1}`,
+    tiempo: t / 1000,
+  })) || [];
 
-  const aoProgressionData = () => {
-    if (!activeSession?.times || activeSession.times.length < 5) return [];
+  // Datos para LineChart evolución Ao5 y Ao12
+  const ao5LineData = stats.ao5s?.map((ao5, i) => ({
+    name: `#${i + 1}`,
+    Ao5: ao5 / 1000,
+  })) || [];
+  const ao12LineData = stats.ao12s?.map((ao12, i) => ({
+    name: `#${i + 1}`,
+    Ao12: ao12 / 1000,
+  })) || [];
 
-    const data = [];
-    for (let i = 4; i < activeSession.times.length; i++) {
-      const slice = activeSession.times.slice(i - 4, i + 1);
-      const dnfCount = slice.filter((_, idx) =>
-        activeSession.dnfTimes.includes(i - 4 + idx)).length;
-
-      if (dnfCount > 1) continue;
-
-      const times = slice.map((t, idx) => {
-        const globalIdx = i - 4 + idx;
-        if (activeSession.dnfTimes.includes(globalIdx)) return Infinity;
-        if (activeSession.plusTwoTimes.includes(globalIdx)) return t.time + 2000;
-        return t.time;
-      }).filter(t => t !== Infinity);
-
-      if (times.length < 3) continue;
-
-      const sorted = [...times].sort((a, b) => a - b);
-      const trimmed = sorted.slice(1, -1);
-      const avg = trimmed.reduce((sum, t) => sum + t, 0) / trimmed.length;
-
-      data.push({
-        solve: i + 1,
-        ao5: avg,
-        isDNF: dnfCount === 1
-      });
-    }
-
-    return data;
-  };
-
-  const bestWorstComparison = () => {
-    if (!stats.bestTime || !stats.worstTime) return null;
-
-    return [
-      { name: 'Mejor', time: stats.bestTime },
-      { name: 'Promedio', time: stats.overallAverage },
-      { name: 'Peor', time: stats.worstTime }
-    ];
-  };
-
-  const successRateData = [
-    { name: 'Éxitos', value: stats.totalSolves - stats.totalDnfs, color: '#4CAF50' },
-    { name: 'DNFs', value: stats.totalDnfs, color: '#F44336' },
-    { name: '+2', value: activeSession?.plusTwoTimes?.length || 0, color: '#FFC107' }
+  // Datos para PieChart proporción DNFs, +2 y válidos
+  const validCount = stats.totalSolves - stats.totalDnfs - stats.totalPlusTwo;
+  const pieData = [
+    { name: 'Válidos', value: validCount },
+    { name: '+2', value: stats.totalPlusTwo },
+    { name: 'DNF', value: stats.totalDnfs },
   ];
 
-  const renderActiveShape = (props) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent } = props;
+  // Datos para AreaChart mejor tiempo (asumiendo progreso a lo largo del tiempo)
+  const bestTimeProgression = stats.numericTimes?.map((t, i) => {
+    const bestUpToNow = Math.min(...stats.numericTimes.slice(0, i + 1));
+    return {
+      name: `#${i + 1}`,
+      mejorTiempo: bestUpToNow / 1000,
+    };
+  }) || [];
 
-    return (
-      <g>
-        <text x={cx} y={cy} dy={-10} textAnchor="middle" fill={textColor}>
-          {payload.name}
-        </text>
-        <text x={cx} y={cy} dy={10} textAnchor="middle" fill={textColor}>
-          {`${(percent * 100).toFixed(1)}%`}
-        </text>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-        />
-      </g>
-    );
-  };
+  // Datos para RadarChart: comparativa métricas clave (normalizadas para radar)
+  const radarData = [
+    { metric: 'Consistencia', value: stats.consistencyIndex ?? 0 },
+    { metric: 'Desviación estándar', value: stats.stdDev ? 1 / (stats.stdDev + 1) : 0 },
+    { metric: 'Tasa éxito', value: (stats.successRate ?? 0) / 100 },
+    { metric: 'Tasa DNF', value: 1 - ((stats.dnfRate ?? 0) / 100) },
+    { metric: 'Tasa +2', value: 1 - ((stats.plusTwoRate ?? 0) / 100) },
+  ];
 
   return (
-    <div className={styles.estadisticasWrapper}>
-      <div className={styles.estadisticasContainer}>
+    <div className={styles['stats-container']}>
+      <h2 className={styles['stats-title']}>📊 Estadísticas de la sesión</h2>
 
+            <label className={styles['stats-select-label']}>
+              Seleccionar sesión:
+            <select
+        value={activeSessionId}
+        onChange={handleSessionChange}
+        className={styles['stats-select']}
+      >
+        {sessions.map((session) => (
+          <option key={session.id} value={session.id}>
+            {`${session.name} (${session.cubeType || '3x3'}) • ${session.times.length}`}
+          </option>
+        ))}
+      </select>
 
-        <div className={styles.sessionSelector}>
-          <h2>Sesión actual: {activeSession?.name}</h2>
-          <select 
-            value={activeSessionId} 
-            onChange={(e) => switchSession(e.target.value)}
-            className={styles.sessionSelect}
-          >
-            {sessions.map(session => (
-              <option key={session.id} value={session.id}>{session.name}</option>
-            ))}
-          </select>
+      </label>
+
+      <div className={styles['stats-grid']}>
+        {/* Estadísticas básicas */}
+        <StatCard icon={<Trophy />} label="Mejor tiempo" value={formatTimeFull(stats.bestTime)} />
+        <StatCard icon={<Timer />} label="Peor tiempo" value={formatTimeFull(stats.worstTime)} />
+        <StatCard icon={<TrendingUp />} label="Promedio general" value={formatTimeFull(stats.overallAverage)} />
+        <StatCard icon={<CheckCircle />} label="Mediana" value={formatTimeFull(stats.median)} />
+
+        {/* Averages */}
+        <StatCard label="Ao5" value={formatTimeFull(stats.ao5)} />
+        <StatCard label="Ao12" value={formatTimeFull(stats.ao12)} />
+        <StatCard label="Ao50" value={formatTimeFull(stats.ao50)} />
+        <StatCard label="Ao100" value={formatTimeFull(stats.ao100)} />
+        <StatCard label="Mo3" value={formatTimeFull(stats.mo3)} />
+
+        {/* Best/Worst Averages */}
+        <StatCard label="Mejor Ao5" value={formatTimeFull(stats.bestAo5)} />
+        <StatCard label="Peor Ao5" value={formatTimeFull(stats.worstAo5)} />
+        <StatCard label="Mejor Ao12" value={formatTimeFull(stats.bestAo12)} />
+        <StatCard label="Peor Ao12" value={formatTimeFull(stats.worstAo12)} />
+        <StatCard label="Mejor Ao50" value={formatTimeFull(stats.bestAo50)} />
+        <StatCard label="Peor Ao50" value={formatTimeFull(stats.worstAo50)} />
+        <StatCard label="Mejor Ao100" value={formatTimeFull(stats.bestAo100)} />
+        <StatCard label="Peor Ao100" value={formatTimeFull(stats.worstAo100)} />
+
+        {/* Cantidad y tasas */}
+        <StatCard icon={<AlertTriangle />} label="DNFs" value={stats.totalDnfs} />
+        <StatCard label="+2" value={stats.totalPlusTwo} />
+        <StatCard label="Tasa de éxito" value={`${stats.successRate}%`} />
+        <StatCard label="Tasa de DNF" value={`${stats.dnfRate}%`} />
+        <StatCard label="Tasa de +2" value={`${stats.plusTwoRate}%`} />
+
+        {/* Estadísticas de dispersión */}
+        <StatCard label="Desviación estándar" value={stats.stdDev ? stats.stdDev.toFixed(0) + ' ms' : 'N/A'} />
+        <StatCard label="Índice de consistencia" value={stats.consistencyIndex?.toFixed(3)} />
+
+        {/* Contadores de rangos de tiempo */}
+        <StatCard label="Sub 10s" value={stats.countSub10} />
+        <StatCard label="Sub 15s" value={stats.countSub15} />
+        <StatCard label="Sub 20s" value={stats.countSub20} />
+        <StatCard label="Sub 30s" value={stats.countSub30} />
+        <StatCard label="Sobre 30s" value={stats.countOver30} />
+
+        {/* Medias de últimos X solves */}
+        <StatCard label="Media últimos 5" value={formatTimeFull(stats.meanOfLast5)} />
+        <StatCard label="Media últimos 12" value={formatTimeFull(stats.meanOfLast12)} />
+        <StatCard label="Media últimos 50" value={formatTimeFull(stats.meanOfLast50)} />
+        <StatCard label="Media últimos 100" value={formatTimeFull(stats.meanOfLast100)} />
+
+        {/* Información adicional */}
+        <StatCard label="Tiempo total" value={formatTimeFull(stats.totalTime)} />
+        <StatCard label="Rango de tiempos" value={formatTimeFull(stats.timeRange)} />
+        <StatCard label="Total solves" value={stats.totalSolves} />
+        <StatCard label="Tasa de mejora (%)" value={stats.improvementRate ? stats.improvementRate.toFixed(2) + '%' : 'N/A'} />
+
+        {/* Rachas */}
+        <StatCard icon={<Flame />} label="Mejor racha sin DNF" value={stats.bestNonDNFStreak} />
+        <StatCard label="Peor racha DNF" value={stats.worstDNFStreak} />
+        <StatCard label="Mejor racha de mejora" value={stats.bestImprovementStreak} />
+
+        {/* Pbs */}
+        <StatCard label="Total PBs" value={stats.totalPBs} />
+        <StatCard label="Tiempo desde último PB (ms)" value={stats.timeSinceLastPB ? stats.timeSinceLastPB.toFixed(0) : 'N/A'} />
+
+        {/* Más listas y datos */}
+        <StatCard label="Número de tiempos registrados" value={stats.numericTimes.length} />
+
+        {/* Opcional: mostrar el detalle de promedios móviles si quieres */}
+        <StatCard label="Cantidad Ao5 calculados" value={stats.ao5s.length} />
+        <StatCard label="Cantidad Ao12 calculados" value={stats.ao12s.length} />
+        <StatCard label="Cantidad Ao50 calculados" value={stats.ao50s.length} />
+        <StatCard label="Cantidad Ao100 calculados" value={stats.ao100s.length} />
+      </div>
+
+      {/* Gráficos */}
+      <div className={styles['charts-grid']}>
+        {/* BarChart últimos tiempos */}
+        <div className={styles['chart-card']}>
+          <h3>Últimos 50 tiempos (s)</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={histogramData}>
+              <XAxis dataKey="name" hide />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="tiempo" fill="#4F46E5" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
-        <div className={styles.statsGrid}>
-          <div className={`${styles.statsCard} ${styles.quickSummary}`}>
-            <h3>Resumen Rápido</h3>
-            <div className={styles.quickStats}>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>Mejor tiempo:</span>
-                <span className={styles.statValue}>{stats.bestTime ? formatTimeDisplay(stats.bestTime) : '--'}</span>
-              </div>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>Promedio:</span>
-                <span className={styles.statValue}>{stats.overallAverage ? formatTimeDisplay(stats.overallAverage) : '--'}</span>
-              </div>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>Solves:</span>
-                <span className={styles.statValue}>{stats.totalSolves}</span>
-              </div>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>DNFs:</span>
-                <span className={styles.statValue}>{stats.totalDnfs} ({stats.dnfRate}%)</span>
-              </div>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>+2:</span>
-                <span className={styles.statValue}>{activeSession?.plusTwoTimes?.length || 0} ({stats.plusTwoRate}%)</span>
-              </div>
-              <div className={styles.quickStat}>
-                <span className={styles.statLabel}>Desviación estándar:</span>
-                <span className={styles.statValue} style={{ color: getStdDevColor(stats.stdDev) }}>
-                  {stats.stdDev ? formatTimeDisplay(stats.stdDev) : '--'}
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* LineChart evolución Ao5 y Ao12 */}
+        <div className={styles['chart-card']}>
+          <h3>Evolución Ao5 y Ao12 (s)</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart>
+              <XAxis dataKey="name" data={ao5LineData} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="Ao5" data={ao5LineData} stroke="#8884d8" dot={false} />
+              <Line type="monotone" dataKey="Ao12" data={ao12LineData} stroke="#82ca9d" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-          {/* Gráficas */}
-          <div className={styles.statsCard}>
-            <h3>Progresión de Tiempos</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={progressionData()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="solve" />
-                  <YAxis tickFormatter={formatTimeDisplay} />
-                  <Tooltip formatter={(value) => [formatTimeDisplay(value), "Tiempo"]} labelFormatter={(value) => `Solve #${value}`} />
-                  <Line type="monotone" dataKey="time" stroke="#8884d8" activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        {/* PieChart DNFs, +2 y válidos */}
+        <div className={styles['chart-card']}>
+          <h3>Proporción DNFs / +2 / Válidos</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={70}
+                label
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-          <div className={styles.statsCard}>
-            <h3>Distribución de Tiempos</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={timeDistributionData()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        {/* AreaChart mejor tiempo progresivo */}
+        <div className={styles['chart-card']}>
+          <h3>Progresión del mejor tiempo (s)</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={bestTimeProgression}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="mejorTiempo" stroke="#ff7300" fill="#ff7300" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
 
-          <div className={styles.statsCard}>
-            <h3>Comparación</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={bestWorstComparison()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={formatTimeDisplay} />
-                  <Tooltip formatter={(value) => [formatTimeDisplay(value), "Tiempo"]} />
-                  <Bar dataKey="time">
-                    {bestWorstComparison()?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={
-                        index === 0 ? '#4CAF50' :
-                          index === 1 ? '#2196F3' : '#F44336'
-                      } />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className={styles.statsCard}>
-            <h3>Progresión de AO5</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={aoProgressionData()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="solve" />
-                  <YAxis tickFormatter={formatTimeDisplay} />
-                  <Tooltip formatter={(value) => [formatTimeDisplay(value), "AO5"]} labelFormatter={(value) => `Solve #${value}`} />
-                  <Line type="monotone" dataKey="ao5" stroke="#FF9800" activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className={styles.statsCard}>
-            <h3>Éxitos vs Fallos</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    activeIndex={0}
-                    activeShape={renderActiveShape}
-                    data={successRateData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {successRateData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                  <Tooltip formatter={(value, name, props) => [
-                    `${value} (${(props.payload.percent * 100).toFixed(1)}%)`,
-                    name
-                  ]} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className={styles.statsCard}>
-            <h3>Comparación entre Sesiones</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={sessionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis yAxisId="left" orientation="left" tickFormatter={formatTimeDisplay} />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip formatter={(value, name) =>
-                    name === 'avg' || name === 'best' ?
-                      [formatTimeDisplay(value), name === 'avg' ? 'Promedio' : 'Mejor'] :
-                      [value, 'Solves']
-                  } />
-                  <Legend />
-                  <Bar yAxisId="right" dataKey="solves" fill="#9E9E9E" name="Solves" />
-                  <Bar yAxisId="left" dataKey="best" fill="#4CAF50" name="Mejor" />
-                  <Bar yAxisId="left" dataKey="avg" fill="#2196F3" name="Promedio" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className={`${styles.statsCard} ${styles.detailedStats}`}>
-            <h3>Estadísticas Detalladas</h3>
-            <div className={styles.detailedStatsGrid}>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Mejor AO5:</span>
-                <span className={styles.statValue}>{stats.bestAo5 ? formatTimeDisplay(stats.bestAo5) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Peor AO5:</span>
-                <span className={styles.statValue}>{stats.worstAo5 ? formatTimeDisplay(stats.worstAo5) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Mejor AO12:</span>
-                <span className={styles.statValue}>{stats.bestAo12 ? formatTimeDisplay(stats.bestAo12) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Peor AO12:</span>
-                <span className={styles.statValue}>{stats.worstAo12 ? formatTimeDisplay(stats.worstAo12) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Sub-10:</span>
-                <span className={styles.statValue}>{stats.countSub10}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Sub-15:</span>
-                <span className={styles.statValue}>{stats.countSub15}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Sub-20:</span>
-                <span className={styles.statValue}>{stats.countSub20}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Mediana:</span>
-                <span className={styles.statValue}>{stats.median ? formatTimeDisplay(stats.median) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Promedio últimos 50:</span>
-                <span className={styles.statValue}>{stats.meanOfLast50 ? formatTimeDisplay(stats.meanOfLast50) : '--'}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>Promedio últimos 100:</span>
-                <span className={styles.statValue}>{stats.meanOfLast100 ? formatTimeDisplay(stats.meanOfLast100) : '--'}</span>
-              </div>
-            </div>
-          </div>
+        {/* RadarChart métricas clave */}
+        <div className={styles['chart-card']}>
+          <h3>Métricas clave comparadas</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="metric" />
+              <PolarRadiusAxis angle={30} domain={[0, 1]} />
+              <Radar name="Métricas" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              <Legend />
+            </RadarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default Estadisticas;
+function StatCard({ icon, label, value }) {
+  return (
+    <div className={styles['stat-card']}>
+      {icon && <div className={styles['stat-icon']}>{icon}</div>}
+      <div>
+        <p className={styles['stat-label']}>{label}</p>
+        <p className={styles['stat-value']}>{value ?? 'N/A'}</p>
+      </div>
+    </div>
+  );
+}

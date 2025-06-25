@@ -1,13 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useTheme } from './Hooks/useTheme';
-import { useSessions } from './Hooks/useSessions';
+import { useSessions } from '../src/components/Hooks/useSessions';
 import Timer from './components/Timer/Timer';
 import Estadisticas from './components/Estadisticas/Estadisticas';
 import { useEffect } from 'react';
 import './App.css';
+import './nav.css';
 
 function AppContent() {
-  const { bgColor, textColor } = useTheme();
   const { sessions } = useSessions();
   const location = useLocation();
 

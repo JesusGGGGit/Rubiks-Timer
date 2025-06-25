@@ -16,7 +16,7 @@ export function formatTimeDisplay(ms) {
   }
 }
 
-export function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
+export function formatTimeFull(ms, index, plusTwoTimes = [], dnfTimes = []) {
   const isPlusTwo = plusTwoTimes.includes(index);
   const isDnf = dnfTimes.includes(index);
 
@@ -43,3 +43,4 @@ export function formatTimeFull(ms, index, plusTwoTimes, dnfTimes) {
 
   return isPlusTwo ? `${timeStr} (+2)` : timeStr;
 }
+

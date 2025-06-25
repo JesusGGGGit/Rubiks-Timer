@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "../../App.css";
 import SettingsModal from '../Settings/SettingsModal';
-import { formatTimeDisplay, formatTimeFull } from '../../utils/formatUtils';
-import { calculateStats } from '../../utils/calculateStats';
-import { getStdDevColor } from '../../utils/Descriptions';
-import { getSortedTimes } from '../../utils/sorting';
+import { formatTimeDisplay, formatTimeFull } from '../utils/formatUtils';
+import { calculateStats } from '../utils/calculateStats';
+import { getStdDevColor } from '../utils/Descriptions';
+import { getSortedTimes } from '../utils/sorting';
 import StatDetailModal from '../StatDetailModal/StatDetailModal';
 import Modals from '../TimesModal/TimesModal';
 import TimesSidebar from '../SideBar/SideBar';
 import MainContent from '../MainContent/MainContent';
-import { useTheme } from '../../Hooks/useTheme';
-import { useScramble } from '../../Hooks/useScramble';
-import { useTimerLogic } from '../../Hooks/useTimerLogic';
-import { useTimeDetail } from "../../Hooks/useTimeDetail";
-import { useConfetti } from "../../Hooks/useConfetti";
-import { useSessions } from "../../Hooks/useSessions";
-import { useDeleteTime } from "../../Hooks/useDeleteTime";
-import { useSettings } from "../../Hooks/useSettings";
-import useFullscreen from "../../Hooks/useFullscreen";
+import { useTheme } from '../Hooks/useTheme';
+import { useScramble } from '../Hooks/useScramble';
+import { useTimerLogic } from '../Hooks/useTimerLogic';
+import { useTimeDetail } from "../Hooks/useTimeDetail";
+import { useConfetti } from "../Hooks/useConfetti";
+import { useSessions } from "../Hooks/useSessions";
+import { useDeleteTime } from "../Hooks/useDeleteTime";
+import { useSettings } from "../Hooks/useSettings";
+import useFullscreen from "../Hooks/useFullscreen";
 
 function App() {
   const {
