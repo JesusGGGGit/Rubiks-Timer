@@ -21,14 +21,14 @@ function AppContent() {
   return (
     <div>
       <nav>
-        <Link to="/">Timer</Link>
+        <Link to="/Timer">Timer</Link>
         <span className="nav-separator">|</span>
         <Link to="/estadisticas">Estadísticas</Link>
       </nav>
 
       <main>
         <Routes>
-          <Route path="/" element={<Timer />} />
+          <Route path="/Timer" element={<Timer />} />
           <Route path="/estadisticas" element={<Estadisticas sessions={sessions} />} />
         </Routes>
       </main>
