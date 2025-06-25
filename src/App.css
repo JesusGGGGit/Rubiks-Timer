@@ -48,6 +48,7 @@ body, html {
   height: 100%;
   overflow-y: auto;
   padding: 20px;
+  padding-bottom: 40px;
 }
 
 .sidebar-header {
