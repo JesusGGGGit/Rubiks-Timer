@@ -21,14 +21,14 @@ function AppContent() {
   return (
     <div>
       <nav>
-        <Link to="/Timer">Timer</Link>
+        <Link to="/">Timer</Link>
         <span className="nav-separator">|</span>
         <Link to="/estadisticas">Estadísticas</Link>
       </nav>
 
       <main>
         <Routes>
-          <Route path="/Timer" element={<Timer />} />
+          <Route path="/" element={<Timer />} />
           <Route path="/estadisticas" element={<Estadisticas sessions={sessions} />} />
         </Routes>
       </main>
@@ -38,9 +38,10 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+<Router basename="/Rubiks-Timer">
+  <AppContent />
+</Router>
+
   );
 }
 
