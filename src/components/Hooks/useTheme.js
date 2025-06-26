@@ -1,62 +1,65 @@
 import { useState, useEffect } from "react";
 
 export function useTheme() {
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Detección de móvil solo una vez al montar
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  }, []);
+
+  // Estado inicial con valores por defecto
+  const [theme, setTheme] = useState(() => ({
+    bgColor: localStorage.getItem("bgColor") || "#ffffff",
+    textColor: localStorage.getItem("textColor") || "#000000",
+    scrambleColor: localStorage.getItem("scrambleColor") || "#000000",
+    timerSize: parseInt(localStorage.getItem("timerSize")) || 200,
+    scrambleSize: parseInt(localStorage.getItem("scrambleSize")) || 30,
+    cubeSize: Math.min(
+      parseInt(localStorage.getItem("cubeSize")) || 50,
+      isMobile ? 10 : 100 // Límites diferentes para móvil/desktop
+    )
+  }));
+
+  // Actualizar CSS y localStorage cuando cambia el tema
+  useEffect(() => {
+    // Colores
+    document.documentElement.style.setProperty('--bg-color', theme.bgColor);
+    document.documentElement.style.setProperty('--text-color', theme.textColor);
+    document.documentElement.style.setProperty('--scramble-color', theme.scrambleColor);
+    
+    // Tamaños
+    document.documentElement.style.setProperty('--timer-font-size', `${theme.timerSize}px`);
+    document.documentElement.style.setProperty('--scramble-font-size', `${theme.scrambleSize}px`);
+    document.documentElement.style.setProperty('--cube-size', `${isMobile ? 10 : theme.cubeSize}px`);
+    
+    // Guardar en localStorage (excepto cubeSize en móviles)
+    localStorage.setItem("bgColor", theme.bgColor);
+    localStorage.setItem("textColor", theme.textColor);
+    localStorage.setItem("scrambleColor", theme.scrambleColor);
+    localStorage.setItem("timerSize", theme.timerSize);
+    localStorage.setItem("scrambleSize", theme.scrambleSize);
+    if (!isMobile) localStorage.setItem("cubeSize", theme.cubeSize);
+  }, [theme, isMobile]);
+
+  // Setters específicos
+  const updateTheme = (key, value) => {
+    setTheme(prev => ({ ...prev, [key]: value }));
   };
 
-  const [bgColor, setBgColor] = useState(localStorage.getItem("bgColor") || "#ffffff");
-  const [textColor, setTextColor] = useState(localStorage.getItem("textColor") || "#000000");
-  const [scrambleColor, setScrambleColor] = useState(localStorage.getItem("scrambleColor") || "#000000");
-  const [timerSize, setTimerSize] = useState(() => parseInt(localStorage.getItem("timerSize")) || 200);
-  const [scrambleSize, setScrambleSize] = useState(() => parseInt(localStorage.getItem("scrambleSize")) || 30);
-  
-  const [cubeSize, setCubeSize] = useState(() => {
-    const savedSize = parseInt(localStorage.getItem("cubeSize"));
-    return isMobile() ? 10 : (savedSize || 50);
-  });
-
-  useEffect(() => {
-    if (!isMobile()) {
-      localStorage.setItem("cubeSize", cubeSize);
-      document.documentElement.style.setProperty('--cube-size', `${cubeSize}px`);
-    } else {
-      document.documentElement.style.setProperty('--cube-size', '10px');
-    }
-  }, [cubeSize]);
-
-  useEffect(() => {
-    localStorage.setItem("bgColor", bgColor);
-    document.documentElement.style.setProperty('--bg-color', bgColor);
-  }, [bgColor]);
-
-  useEffect(() => {
-    localStorage.setItem("textColor", textColor);
-    document.documentElement.style.setProperty('--text-color', textColor);
-  }, [textColor]);
-
-  useEffect(() => {
-    localStorage.setItem("scrambleColor", scrambleColor);
-    document.documentElement.style.setProperty('--scramble-color', scrambleColor);
-  }, [scrambleColor]);
-
-  useEffect(() => {
-    localStorage.setItem("timerSize", timerSize);
-    document.documentElement.style.setProperty('--timer-font-size', `${timerSize}px`);
-  }, [timerSize]);
-
-  useEffect(() => {
-    localStorage.setItem("scrambleSize", scrambleSize);
-    document.documentElement.style.setProperty('--scramble-font-size', `${scrambleSize}px`);
-  }, [scrambleSize]);
-
   return {
-    bgColor, setBgColor,
-    textColor, setTextColor,
-    scrambleColor, setScrambleColor,
-    timerSize, setTimerSize,
-    scrambleSize, setScrambleSize,
-    cubeSize: isMobile() ? 10 : cubeSize, 
-    setCubeSize: isMobile() ? () => {} : setCubeSize
+    bgColor: theme.bgColor,
+    textColor: theme.textColor,
+    scrambleColor: theme.scrambleColor,
+    timerSize: theme.timerSize,
+    scrambleSize: theme.scrambleSize,
+    cubeSize: isMobile ? 10 : theme.cubeSize,
+    isMobile,
+    setBgColor: (color) => updateTheme('bgColor', color),
+    setTextColor: (color) => updateTheme('textColor', color),
+    setScrambleColor: (color) => updateTheme('scrambleColor', color),
+    setTimerSize: (size) => updateTheme('timerSize', size),
+    setScrambleSize: (size) => updateTheme('scrambleSize', size),
+    setCubeSize: isMobile ? null : (size) => updateTheme('cubeSize', size)
   };
 }

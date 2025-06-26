@@ -36,6 +36,8 @@ export const useTimerLogic = ({
   useEffect(() => { timeRef.current = time; }, [time]);
 
   const isInTimerContainer = (element) => {
+    if (!element || element === document.body) return false;
+
     while (element !== null && element !== document.body) {
       if (element.classList?.contains('timer-container')) {
         return true;
@@ -51,6 +53,10 @@ export const useTimerLogic = ({
     setDnf(false);
     setShowDnf(false);
     setInspectionRunning(true);
+
+    if (inspectionIntervalRef.current) {
+      clearInterval(inspectionIntervalRef.current);
+    }
 
     inspectionIntervalRef.current = setInterval(() => {
       remaining -= 1;
@@ -75,16 +81,12 @@ export const useTimerLogic = ({
   }, [inspectionDuration, activeSessionId, scramble, setSessions, generateScramble]);
 
   const handleStart = useCallback((e) => {
-    // Verificar si el evento ocurrió dentro del timer-container
-    if (!isInTimerContainer(e.target)) return;
-    
-    // Para eventos de teclado, verificar si es la tecla espacio
+    if (e.type.includes('touch') && !isInTimerContainer(e.target)) return;
     if (e.type === 'keydown' && e.code !== "Space") return;
-    
-    // Ignorar si el evento proviene de un input o textarea
     if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
-    
+
     e.preventDefault();
+
     if (showDnfRef.current) {
       setShowDnf(false);
       if (inspectionTime) startInspection();
@@ -95,6 +97,7 @@ export const useTimerLogic = ({
       if (inspectionTime) {
         startInspection();
       } else {
+        if (holdTimeoutRef.current) clearTimeout(holdTimeoutRef.current);
         holdTimeoutRef.current = setTimeout(() => {
           setReady(true);
         }, holdToStart ? 500 : 0);
@@ -102,6 +105,7 @@ export const useTimerLogic = ({
     }
 
     if (inspectionRunningRef.current && !readyRef.current) {
+      if (holdTimeoutRef.current) clearTimeout(holdTimeoutRef.current);
       holdTimeoutRef.current = setTimeout(() => {
         if (inspectionRunningRef.current) setReady(true);
       }, 500);
@@ -109,17 +113,17 @@ export const useTimerLogic = ({
   }, [holdToStart, inspectionTime, startInspection]);
 
   const handleStop = useCallback((e) => {
-    // Verificar si el evento ocurrió dentro del timer-container
-    if (!isInTimerContainer(e.target)) return;
-    
-    // Para eventos de teclado, verificar si es la tecla espacio
+    if (e.type.includes('touch') && !isInTimerContainer(e.target)) return;
     if (e.type === 'keyup' && e.code !== "Space") return;
-    
-    // Ignorar si el evento proviene de un input o textarea
     if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
-    
+
     e.preventDefault();
-    clearTimeout(holdTimeoutRef.current);
+
+    if (holdTimeoutRef.current) {
+      clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
+    }
+
     if (showDnfRef.current) return;
 
     if (readyRef.current) {
@@ -127,7 +131,10 @@ export const useTimerLogic = ({
       setRunning(true);
       setReady(false);
       setInspectionRunning(false);
-      clearInterval(inspectionIntervalRef.current);
+      if (inspectionIntervalRef.current) {
+        clearInterval(inspectionIntervalRef.current);
+        inspectionIntervalRef.current = null;
+      }
     } else if (runningRef.current) {
       setRunning(false);
       if (timeRef.current > 0) {
@@ -146,38 +153,41 @@ export const useTimerLogic = ({
   }, [activeSessionId, scramble, generateScramble, setSessions, onNewSolve]);
 
   useEffect(() => {
-    // Eventos de teclado
-    window.addEventListener("keydown", handleStart);
-    window.addEventListener("keyup", handleStop);
-    
-    // Eventos táctiles
-    window.addEventListener("touchstart", handleStart, { passive: false });
-    window.addEventListener("touchend", handleStop, { passive: false });
-    
+    const keyDownHandler = (e) => handleStart(e);
+    const keyUpHandler = (e) => handleStop(e);
+    const touchStartHandler = (e) => handleStart(e);
+    const touchEndHandler = (e) => handleStop(e);
+
+    window.addEventListener("keydown", keyDownHandler);
+    window.addEventListener("keyup", keyUpHandler);
+    window.addEventListener("touchstart", touchStartHandler, { passive: false });
+    window.addEventListener("touchend", touchEndHandler, { passive: false });
+
     return () => {
-      // Limpiar eventos de teclado
-      window.removeEventListener("keydown", handleStart);
-      window.removeEventListener("keyup", handleStop);
-      
-      // Limpiar eventos táctiles
-      window.removeEventListener("touchstart", handleStart);
-      window.removeEventListener("touchend", handleStop);
-      
-      clearInterval(intervalRef.current);
-      clearInterval(inspectionIntervalRef.current);
-      clearTimeout(holdTimeoutRef.current);
+      window.removeEventListener("keydown", keyDownHandler);
+      window.removeEventListener("keyup", keyUpHandler);
+      window.removeEventListener("touchstart", touchStartHandler);
+      window.removeEventListener("touchend", touchEndHandler);
+
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (inspectionIntervalRef.current) clearInterval(inspectionIntervalRef.current);
+      if (holdTimeoutRef.current) clearTimeout(holdTimeoutRef.current);
     };
   }, [handleStart, handleStop]);
 
   useEffect(() => {
     if (running) {
+      const startTime = Date.now() - timeRef.current;
       intervalRef.current = setInterval(() => {
-        setTime(prev => prev + 10);
+        setTime(Date.now() - startTime);
       }, 10);
-    } else {
-      clearInterval(intervalRef.current);
     }
-    return () => clearInterval(intervalRef.current);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [running]);
 
   return {

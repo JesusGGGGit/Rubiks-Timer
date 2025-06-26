@@ -1,37 +1,52 @@
-
 export function calculateStats(times = [], plusTwoTimes = [], dnfTimes = []) {
-const validTimes = times.map((t, i) => ({
-  time: t.time,
-  scramble: t.scramble,
-  timestamp: t.timestamp,
-  index: i,
-  isDNF: dnfTimes.includes(i),
-  isPlusTwo: plusTwoTimes.includes(i)
-}));
+  // Preprocesamiento de tiempos
+  const validTimes = times.map((t, i) => ({
+    time: t.time,
+    scramble: t.scramble,
+    timestamp: t.timestamp,
+    index: i,
+    isDNF: dnfTimes.includes(i),
+    isPlusTwo: plusTwoTimes.includes(i)
+  }));
 
-
+  // Tiempos numéricos con penalizaciones aplicadas
   const numericTimes = validTimes
     .map(t => t.isDNF ? null : (t.isPlusTwo ? t.time + 2000 : t.time))
     .filter(t => t !== null);
 
+  // Lista ordenada para cálculos estadísticos
+  const sortedTimes = numericTimes.length > 0 ? [...numericTimes].sort((a, b) => a - b) : [];
+  const count = numericTimes.length;
+
+  // Función helper para redondeo
+  const roundTo = (value, decimals = 2) => value !== null ? Number(value.toFixed(decimals)) : null;
+
+  // Función para calcular percentiles
+  const percentile = (arr, p) => {
+    if (arr.length === 0) return null;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const idx = (p / 100) * (sorted.length - 1);
+    if (Math.floor(idx) === idx) {
+      return sorted[idx];
+    }
+    const lower = sorted[Math.floor(idx)];
+    const upper = sorted[Math.ceil(idx)];
+    return lower + (upper - lower) * (idx - Math.floor(idx));
+  };
+
   // Cálculos básicos
-  const bestTime = numericTimes.length > 0 ? Math.min(...numericTimes) : null;
-  const worstTime = numericTimes.length > 0 ? Math.max(...numericTimes) : null;
+  const bestTime = count > 0 ? sortedTimes[0] : null;
+  const worstTime = count > 0 ? sortedTimes[count - 1] : null;
   const totalSolves = times.length;
   const totalDnfs = dnfTimes.length;
   const totalPlusTwo = plusTwoTimes.length;
-  const successRate = totalSolves > 0 ? ((totalSolves - totalDnfs) / totalSolves * 100).toFixed(1) : 0;
-  const dnfRate = totalSolves > 0 ? (totalDnfs / totalSolves * 100).toFixed(1) : 0;
-  const plusTwoRate = totalSolves > 0 ? (totalPlusTwo / totalSolves * 100).toFixed(1) : 0;
-  const overallAverage = numericTimes.length > 0 ? numericTimes.reduce((a, b) => a + b, 0) / numericTimes.length : null;
+  const successRate = roundTo(totalSolves > 0 ? ((totalSolves - totalDnfs) / totalSolves * 100) : 0, 1);
+  const dnfRate = roundTo(totalSolves > 0 ? (totalDnfs / totalSolves * 100) : 0, 1);
+  const plusTwoRate = roundTo(totalSolves > 0 ? (totalPlusTwo / totalSolves * 100) : 0, 1);
+  const overallAverage = count > 0 ? roundTo(numericTimes.reduce((a, b) => a + b, 0) / count) : null;
+  const median = percentile(numericTimes, 50);
 
-  const median = numericTimes.length > 0 ? (() => {
-    const sorted = [...numericTimes].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  })() : null;
-
-  // Función para calcular promedios
+  // Función para calcular promedios (ao5, ao12, etc.)
   const average = (slice) => {
     const nums = slice.map(t => {
       if (t.isDNF) return null;
@@ -43,9 +58,9 @@ const validTimes = times.map((t, i) => ({
     if (nums.length >= 3) {
       const sorted = [...nums].sort((a, b) => a - b);
       const trimmed = sorted.slice(1, -1);
-      return trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+      return roundTo(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
     }
-    return nums.reduce((a, b) => a + b, 0) / nums.length;
+    return roundTo(nums.reduce((a, b) => a + b, 0) / nums.length);
   };
 
   // Promedios móviles
@@ -55,7 +70,7 @@ const validTimes = times.map((t, i) => ({
   const ao100 = times.length >= 100 ? average(validTimes.slice(-100)) : null;
   const mo3 = numericTimes.length >= 3 ? average(validTimes.slice(-3)) : null;
 
-  // Cálculo de todas las series de promedios móviles
+  // Cálculo de series de promedios móviles
   const calculateMovingAverages = (windowSize) => {
     const averages = [];
     for (let i = windowSize - 1; i < validTimes.length; i++) {
@@ -72,14 +87,14 @@ const validTimes = times.map((t, i) => ({
   const ao100s = calculateMovingAverages(100);
 
   // Mejores/peores promedios
-  const bestAo5 = ao5s.length > 0 ? Math.min(...ao5s) : null;
-  const worstAo5 = ao5s.length > 0 ? Math.max(...ao5s) : null;
-  const bestAo12 = ao12s.length > 0 ? Math.min(...ao12s) : null;
-  const worstAo12 = ao12s.length > 0 ? Math.max(...ao12s) : null;
-  const bestAo50 = ao50s.length > 0 ? Math.min(...ao50s) : null;
-  const worstAo50 = ao50s.length > 0 ? Math.max(...ao50s) : null;
-  const bestAo100 = ao100s.length > 0 ? Math.min(...ao100s) : null;
-  const worstAo100 = ao100s.length > 0 ? Math.max(...ao100s) : null;
+  const bestAo5 = ao5s.length > 0 ? roundTo(Math.min(...ao5s)) : null;
+  const worstAo5 = ao5s.length > 0 ? roundTo(Math.max(...ao5s)) : null;
+  const bestAo12 = ao12s.length > 0 ? roundTo(Math.min(...ao12s)) : null;
+  const worstAo12 = ao12s.length > 0 ? roundTo(Math.max(...ao12s)) : null;
+  const bestAo50 = ao50s.length > 0 ? roundTo(Math.min(...ao50s)) : null;
+  const worstAo50 = ao50s.length > 0 ? roundTo(Math.max(...ao50s)) : null;
+  const bestAo100 = ao100s.length > 0 ? roundTo(Math.min(...ao100s)) : null;
+  const worstAo100 = ao100s.length > 0 ? roundTo(Math.max(...ao100s)) : null;
 
   // Índices de mejores/peores tiempos
   const bestTimeIndex = bestTime !== null ? validTimes.findIndex(t => 
@@ -96,10 +111,10 @@ const validTimes = times.map((t, i) => ({
   const worstAo12Index = worstAo12 !== null ? ao12s.indexOf(worstAo12) : null;
 
   // Desviación estándar y consistencia
-  const stdDev = numericTimes.length > 1 ?
-    Math.sqrt(numericTimes.map(x => Math.pow(x - overallAverage, 2)).reduce((a, b) => a + b) / numericTimes.length) : null;
+  const stdDev = count > 1 ?
+    roundTo(Math.sqrt(numericTimes.map(x => Math.pow(x - overallAverage, 2)).reduce((a, b) => a + b) / count)) : null;
 
-  const consistencyIndex = stdDev !== null && overallAverage !== null ? stdDev / overallAverage : null;
+  const consistencyIndex = stdDev !== null && overallAverage !== null ? roundTo(stdDev / overallAverage) : null;
 
   // Contadores por rangos de tiempo
   const countSub10 = numericTimes.filter(t => t < 10000).length;
@@ -110,26 +125,26 @@ const validTimes = times.map((t, i) => ({
 
   // Medias de últimos solves
   const meanOfLast5 = numericTimes.length >= 5 ? 
-    numericTimes.slice(-5).reduce((a, b) => a + b, 0) / 5 : null;
+    roundTo(numericTimes.slice(-5).reduce((a, b) => a + b, 0) / 5) : null;
   const meanOfLast12 = numericTimes.length >= 12 ? 
-    numericTimes.slice(-12).reduce((a, b) => a + b, 0) / 12 : null;
+    roundTo(numericTimes.slice(-12).reduce((a, b) => a + b, 0) / 12) : null;
   const meanOfLast50 = numericTimes.length >= 50 ? 
-    numericTimes.slice(-50).reduce((a, b) => a + b, 0) / 50 : null;
+    roundTo(numericTimes.slice(-50).reduce((a, b) => a + b, 0) / 50) : null;
   const meanOfLast100 = numericTimes.length >= 100 ? 
-    numericTimes.slice(-100).reduce((a, b) => a + b, 0) / 100 : null;
+    roundTo(numericTimes.slice(-100).reduce((a, b) => a + b, 0) / 100) : null;
 
   // Tiempo total y rango
-  const totalTime = numericTimes.reduce((a, b) => a + b, 0);
-  const timeRange = numericTimes.length > 0 ? worstTime - bestTime : null;
+  const totalTime = roundTo(numericTimes.reduce((a, b) => a + b, 0));
+  const timeRange = count > 0 ? roundTo(worstTime - bestTime) : null;
 
   // Tasa de mejora
   let improvementRate = null;
-  if (numericTimes.length >= 10) {
-    const first10Percent = numericTimes.slice(0, Math.floor(numericTimes.length * 0.1));
-    const last10Percent = numericTimes.slice(-Math.floor(numericTimes.length * 0.1));
+  if (count >= 10) {
+    const first10Percent = numericTimes.slice(0, Math.floor(count * 0.1));
+    const last10Percent = numericTimes.slice(-Math.floor(count * 0.1));
     const firstAvg = first10Percent.reduce((a, b) => a + b, 0) / first10Percent.length;
     const lastAvg = last10Percent.reduce((a, b) => a + b, 0) / last10Percent.length;
-    improvementRate = ((firstAvg - lastAvg) / firstAvg) * 100;
+    improvementRate = roundTo(((firstAvg - lastAvg) / firstAvg) * 100);
   }
 
   // Rachas y PBs
@@ -192,21 +207,8 @@ const validTimes = times.map((t, i) => ({
     }
   });
 
-  // Cálculo de percentiles
-  const percentile = (arr, p) => {
-    if (arr.length === 0) return null;
-    const sorted = [...arr].sort((a, b) => a - b);
-    const idx = (p / 100) * (sorted.length - 1);
-    if (Math.floor(idx) === idx) {
-      return sorted[idx];
-    }
-    const lower = sorted[Math.floor(idx)];
-    const upper = sorted[Math.ceil(idx)];
-    return lower + (upper - lower) * (idx - Math.floor(idx));
-  };
-
+  // Percentiles
   const p25 = percentile(numericTimes, 25);
-  const p50 = median;
   const p75 = percentile(numericTimes, 75);
   const p90 = percentile(numericTimes, 90);
 
@@ -223,23 +225,21 @@ const validTimes = times.map((t, i) => ({
     })(),
     
     skewness: (() => {
-      if (numericTimes.length < 3) return null;
-      const n = numericTimes.length;
+      if (count < 3) return null;
       const mean = overallAverage;
       const std = stdDev;
       const cubedDifferences = numericTimes.map(t => Math.pow((t - mean) / std, 3));
-      return (cubedDifferences.reduce((a, b) => a + b, 0) * n) / ((n - 1) * (n - 2));
+      return roundTo((cubedDifferences.reduce((a, b) => a + b, 0) * count) / ((count - 1) * (count - 2)));
     })(),
     
     kurtosis: (() => {
-      if (numericTimes.length < 4) return null;
-      const n = numericTimes.length;
+      if (count < 4) return null;
       const mean = overallAverage;
       const std = stdDev;
       const fourthPowerDiffs = numericTimes.map(t => Math.pow((t - mean) / std, 4));
-      return (n * (n + 1) / ((n - 1) * (n - 2) * (n - 3))) * 
+      return roundTo((count * (count + 1) / ((count - 1) * (count - 2) * (count - 3))) * 
              fourthPowerDiffs.reduce((a, b) => a + b, 0) - 
-             (3 * Math.pow(n - 1, 2)) / ((n - 2) * (n - 3));
+             (3 * Math.pow(count - 1, 2)) / ((count - 2) * (count - 3)));
     })(),
     
     mode: (() => {
@@ -260,7 +260,7 @@ const validTimes = times.map((t, i) => ({
       return modeValue;
     })(),
     
-    iqr: p75 !== null && p25 !== null ? p75 - p25 : null,
+    iqr: p75 !== null && p25 !== null ? roundTo(p75 - p25) : null,
     
     outlierCount: (() => {
       const threshold = overallAverage !== null && stdDev !== null ? overallAverage + 2 * stdDev : null;
@@ -271,9 +271,8 @@ const validTimes = times.map((t, i) => ({
   // Estadísticas de tendencia
   const trendStats = {
     linearTrend: (() => {
-      if (numericTimes.length < 2) return null;
+      if (count < 2) return null;
       
-      const n = numericTimes.length;
       let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
       
       numericTimes.forEach((t, i) => {
@@ -283,14 +282,14 @@ const validTimes = times.map((t, i) => ({
         sumX2 += i * i;
       });
       
-      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const intercept = (sumY - slope * sumX) / n;
+      const slope = (count * sumXY - sumX * sumY) / (count * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / count;
       
       return {
-        slope,
-        intercept,
+        slope: roundTo(slope),
+        intercept: roundTo(intercept),
         rSquared: (() => {
-          const yMean = sumY / n;
+          const yMean = sumY / count;
           let ssTot = 0;
           let ssRes = 0;
           
@@ -300,49 +299,49 @@ const validTimes = times.map((t, i) => ({
             ssRes += Math.pow(t - yPred, 2);
           });
           
-          return 1 - (ssRes / ssTot);
+          return roundTo(1 - (ssRes / ssTot));
         })()
       };
     })(),
     
     relativeImprovement: (() => {
-      if (numericTimes.length < 10) return null;
-      const first10 = numericTimes.slice(0, Math.floor(numericTimes.length * 0.1));
-      const last10 = numericTimes.slice(-Math.floor(numericTimes.length * 0.1));
+      if (count < 10) return null;
+      const first10 = numericTimes.slice(0, Math.floor(count * 0.1));
+      const last10 = numericTimes.slice(-Math.floor(count * 0.1));
       
       const avgFirst = first10.reduce((a, b) => a + b, 0) / first10.length;
       const avgLast = last10.reduce((a, b) => a + b, 0) / last10.length;
       
       return {
-        absolute: avgFirst - avgLast,
-        relative: ((avgFirst - avgLast) / avgFirst) * 100
+        absolute: roundTo(avgFirst - avgLast),
+        relative: roundTo(((avgFirst - avgLast) / avgFirst) * 100)
       };
     })(),
     
-    improvementPer100: improvementRate ? improvementRate * (100 / numericTimes.length) : null
+    improvementPer100: improvementRate ? roundTo(improvementRate * (100 / count)) : null
   };
 
   // Estadísticas de consistencia avanzadas
   const advancedConsistency = {
     coefficientOfVariation: stdDev !== null && overallAverage !== null ? 
-      (stdDev / overallAverage) * 100 : null,
+      roundTo((stdDev / overallAverage) * 100) : null,
     
     within1StdDev: stdDev !== null && overallAverage !== null ?
-      numericTimes.filter(t => Math.abs(t - overallAverage) <= stdDev).length / numericTimes.length * 100 : null,
+      roundTo(numericTimes.filter(t => Math.abs(t - overallAverage) <= stdDev).length / count * 100) : null,
     within2StdDev: stdDev !== null && overallAverage !== null ?
-      numericTimes.filter(t => Math.abs(t - overallAverage) <= 2 * stdDev).length / numericTimes.length * 100 : null,
+      roundTo(numericTimes.filter(t => Math.abs(t - overallAverage) <= 2 * stdDev).length / count * 100) : null,
     within3StdDev: stdDev !== null && overallAverage !== null ?
-      numericTimes.filter(t => Math.abs(t - overallAverage) <= 3 * stdDev).length / numericTimes.length * 100 : null,
+      roundTo(numericTimes.filter(t => Math.abs(t - overallAverage) <= 3 * stdDev).length / count * 100) : null,
     
-    percentileConsistency: p75 !== null && p25 !== null ? p75 / p25 : null,
+    percentileConsistency: p75 !== null && p25 !== null ? roundTo(p75 / p25) : null,
     
-    ao5Variability: ao5s.length > 1 ? (() => {
+    ao5Variability: ao5s.length > 1 ? roundTo((() => {
       const diffs = [];
       for (let i = 1; i < ao5s.length; i++) {
         diffs.push(Math.abs(ao5s[i] - ao5s[i-1]));
       }
       return diffs.reduce((a, b) => a + b, 0) / diffs.length;
-    })() : null
+    })()) : null
   };
 
   // Estadísticas de PB
@@ -355,12 +354,8 @@ const validTimes = times.map((t, i) => ({
         intervals.push(pbHistory[i].index - pbHistory[i-1].index);
       }
       return {
-        average: intervals.reduce((a, b) => a + b, 0) / intervals.length,
-        median: (() => {
-          const sorted = [...intervals].sort((a, b) => a - b);
-          const mid = Math.floor(sorted.length / 2);
-          return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-        })(),
+        average: roundTo(intervals.reduce((a, b) => a + b, 0) / intervals.length),
+        median: roundTo(percentile(intervals, 50)),
         longest: Math.max(...intervals),
         shortest: Math.min(...intervals)
       };
@@ -373,9 +368,9 @@ const validTimes = times.map((t, i) => ({
         improvements.push(((pbHistory[i-1].time - pbHistory[i].time) / pbHistory[i-1].time) * 100);
       }
       return {
-        average: improvements.reduce((a, b) => a + b, 0) / improvements.length,
-        largest: Math.max(...improvements),
-        smallest: Math.min(...improvements)
+        average: roundTo(improvements.reduce((a, b) => a + b, 0) / improvements.length),
+        largest: roundTo(Math.max(...improvements)),
+        smallest: roundTo(Math.min(...improvements))
       };
     })(),
     
@@ -386,12 +381,8 @@ const validTimes = times.map((t, i) => ({
         intervals.push((new Date(pbHistory[i].timestamp) - new Date(pbHistory[i-1].timestamp)) / (1000 * 60 * 60 * 24));
       }
       return {
-        daysAverage: intervals.reduce((a, b) => a + b, 0) / intervals.length,
-        daysMedian: (() => {
-          const sorted = [...intervals].sort((a, b) => a - b);
-          const mid = Math.floor(sorted.length / 2);
-          return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-        })(),
+        daysAverage: roundTo(intervals.reduce((a, b) => a + b, 0) / intervals.length),
+        daysMedian: roundTo(percentile(intervals, 50)),
         longestDays: Math.max(...intervals),
         shortestDays: Math.min(...intervals)
       };
@@ -446,8 +437,8 @@ const validTimes = times.map((t, i) => ({
           result.push({
             hour,
             count: hourStats[hour].count,
-            average: avg,
-            median,
+            average: roundTo(avg),
+            median: roundTo(median),
             best: Math.min(...hourStats[hour].times),
             worst: Math.max(...hourStats[hour].times)
           });
@@ -491,8 +482,8 @@ const validTimes = times.map((t, i) => ({
           return {
             weekday: day,
             count: weekdayStats[index].count,
-            average: avg,
-            median,
+            average: roundTo(avg),
+            median: roundTo(median),
             best: Math.min(...weekdayStats[index].times),
             worst: Math.max(...weekdayStats[index].times)
           };
@@ -504,10 +495,9 @@ const validTimes = times.map((t, i) => ({
 
   // Estadísticas de scrambles
   const scrambleStats = {
-    averageScrambleLength: (() => {
-      const lengths = validTimes.map(t => t.scramble ? t.scramble.split(' ').length : 0);
-      return lengths.reduce((a, b) => a + b, 0) / lengths.length;
-    })(),
+    averageScrambleLength: roundTo(validTimes
+      .map(t => t.scramble ? t.scramble.split(' ').length : 0)
+      .reduce((a, b) => a + b, 0) / validTimes.length),
     
     commonMoves: (() => {
       const moveCounts = {};
@@ -522,7 +512,8 @@ const validTimes = times.map((t, i) => ({
       
       return Object.entries(moveCounts)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
+        .slice(0, 10)
+        .map(([move, count]) => ({ move, count }));
     })(),
     
     scrambleLengthVsTime: (() => {
@@ -549,9 +540,9 @@ const validTimes = times.map((t, i) => ({
       const intercept = (sumY - slope * sumX) / n;
       
       return {
-        slope,
-        intercept,
-        correlation: (() => {
+        slope: roundTo(slope),
+        intercept: roundTo(intercept),
+        correlation: roundTo((() => {
           const xMean = sumX / n;
           const yMean = sumY / n;
           let numerator = 0;
@@ -565,7 +556,7 @@ const validTimes = times.map((t, i) => ({
           });
           
           return numerator / Math.sqrt(denomX * denomY);
-        })()
+        })())
       };
     })()
   };
@@ -644,11 +635,11 @@ const validTimes = times.map((t, i) => ({
 
     // Percentiles
     percentile25: p25,
-    percentile50: p50,
+    percentile50: median,
     percentile75: p75,
     percentile90: p90,
 
-    // Nuevas estadísticas
+    // Estadísticas avanzadas
     distributionStats,
     trendStats,
     advancedConsistency,
@@ -656,12 +647,13 @@ const validTimes = times.map((t, i) => ({
     timeStats,
     scrambleStats,
 
-    // Datos brutos
+    // Datos brutos para gráficos
     numericTimes,
     validTimes,
     ao5s,
     ao12s,
     ao50s,
-    ao100s
+    ao100s,
+    sortedTimes
   };
 }

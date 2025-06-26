@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import "../../App.css";
 import SettingsModal from '../Settings/SettingsModal';
 import { formatTimeDisplay, formatTimeFull } from '../utils/formatUtils';
@@ -17,17 +17,16 @@ import { useConfetti } from "../Hooks/useConfetti";
 import { useSessions } from "../Hooks/useSessions";
 import { useDeleteTime } from "../Hooks/useDeleteTime";
 import { useSettings } from "../Hooks/useSettings";
-import useFullscreen from "../Hooks/useFullscreen";
 
 function App() {
-const {
-  bgColor, setBgColor,
-  textColor, setTextColor,
-  scrambleColor, setScrambleColor,
-  timerSize, setTimerSize,
-  scrambleSize, setScrambleSize,
-  cubeSize, setCubeSize 
-} = useTheme();
+  const {
+    bgColor, setBgColor,
+    textColor, setTextColor,
+    scrambleColor, setScrambleColor,
+    timerSize, setTimerSize,
+    scrambleSize, setScrambleSize,
+    cubeSize, setCubeSize 
+  } = useTheme();
 
   const {
     sessions,
@@ -67,7 +66,6 @@ const {
 
   const {
     time,
-    running,
     inspectionRunning,
     showDnf,
     ready
@@ -107,12 +105,6 @@ const {
   const [selectedStat, setSelectedStat] = useState(null);
   const [sortOrder, setSortOrder] = useState("recent");
 
-  const [fullScreenTimer, setFullScreenTimer] = useFullscreen(false);
-
-  useEffect(() => {
-    setFullScreenTimer(running);
-  }, [running, setFullScreenTimer]);
-
   const handleCreateSession = useCallback(() => {
     if (!newSessionName.trim()) return;
     createNewSession(newSessionName, newSessionCubeType);
@@ -130,36 +122,33 @@ const {
   };
 
   return (
-    <div className={`app-container ${fullScreenTimer ? "full-screen-mode" : ""}`} style={{ backgroundColor: bgColor }}>
-      {!fullScreenTimer && (
-        <TimesSidebar
-          stats={stats}
-          activeSession={activeSession}
-          sessions={sessions}
-          activeSessionId={activeSessionId}
-          switchSession={switchSession}
-          openNewSessionForm={openNewSessionForm}
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-          showNewSessionForm={showNewSessionForm}
-          setShowNewSessionForm={setShowNewSessionForm}
-          newSessionName={newSessionName}
-          setNewSessionName={setNewSessionName}
-          newSessionCubeType={newSessionCubeType}
-          setNewSessionCubeType={setNewSessionCubeType}
-          handleCreateSession={handleCreateSession}
-          handleOutsideClick={handleOutsideClick}
-          openStatDetail={openStatDetail}
-          openTimeDetailModal={openTimeDetailModal}
-          requestDeleteTime={requestDeleteTime}
-          formatTimeFull={formatTimeFull}
-          getSortedTimes={getSortedTimes}
-          getStdDevColor={getStdDevColor}
-        />
-      )}
+    <div className="app-container" style={{ backgroundColor: bgColor }}>
+      <TimesSidebar
+        stats={stats}
+        activeSession={activeSession}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        switchSession={switchSession}
+        openNewSessionForm={openNewSessionForm}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        showNewSessionForm={showNewSessionForm}
+        setShowNewSessionForm={setShowNewSessionForm}
+        newSessionName={newSessionName}
+        setNewSessionName={setNewSessionName}
+        newSessionCubeType={newSessionCubeType}
+        setNewSessionCubeType={setNewSessionCubeType}
+        handleCreateSession={handleCreateSession}
+        handleOutsideClick={handleOutsideClick}
+        openStatDetail={openStatDetail}
+        openTimeDetailModal={openTimeDetailModal}
+        requestDeleteTime={requestDeleteTime}
+        formatTimeFull={formatTimeFull}
+        getSortedTimes={getSortedTimes}
+        getStdDevColor={getStdDevColor}
+      />
 
       <MainContent
-        fullScreenTimer={fullScreenTimer}
         setShowSettings={setShowSettings}
         scrambleColor={scrambleColor}
         scramble={scramble}

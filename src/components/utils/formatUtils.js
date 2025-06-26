@@ -1,46 +1,44 @@
-
-export function formatTimeDisplay(ms) {
+// Función unificada para formato de tiempo
+export function formatTimeDisplay(ms, showFullMs = false) {
+  if (ms === "DNF" || ms === null) return "DNF";
+  
+  if (typeof ms !== 'number') return '--';
+  
   if (ms >= 0) {
     const hours = Math.floor(ms / 3600000);
     const minutes = Math.floor((ms % 3600000) / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    const tenths = Math.floor((ms % 1000) / 100);
-    const twoDigits = (n) => (n < 10 ? "0" + n : n);
-
-    if (hours > 0) return `${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}.${tenths}`;
-    if (minutes > 0) return `${minutes}:${twoDigits(seconds)}.${tenths}`;
-    return `${seconds}.${tenths}`;
+    const decimals = showFullMs ? Math.floor(ms % 1000) : Math.floor((ms % 1000) / 10);
+    
+    const twoDigits = (n) => n.toString().padStart(2, "0");
+    const threeDigits = (n) => n.toString().padStart(3, "0");
+    
+    if (hours > 0) {
+      return `${hours}:${twoDigits(minutes)}:${twoDigits(seconds)}.${showFullMs ? threeDigits(decimals) : twoDigits(decimals)}`;
+    }
+    if (minutes > 0) {
+      return `${minutes}:${twoDigits(seconds)}.${showFullMs ? threeDigits(decimals) : twoDigits(decimals)}`;
+    }
+    return `${seconds}.${showFullMs ? threeDigits(decimals) : twoDigits(decimals)}`;
   } else {
     const seconds = Math.ceil(Math.abs(ms) / 1000);
     return `${seconds}`;
   }
 }
 
+// Función para formato completo con penalizaciones
 export function formatTimeFull(ms, index, plusTwoTimes = [], dnfTimes = []) {
+  if (ms === "DNF" || ms === null) return "DNF";
+  
   const isPlusTwo = plusTwoTimes.includes(index);
   const isDnf = dnfTimes.includes(index);
 
   if (isDnf) return "DNF";
-
+  
   const displayMs = isPlusTwo && typeof ms === 'number' ? ms + 2000 : ms;
-
+  
   if (displayMs === "DNF") return "DNF";
-
-  const hours = Math.floor(displayMs / 3600000);
-  const minutes = Math.floor((displayMs % 3600000) / 60000);
-  const seconds = Math.floor((displayMs % 60000) / 1000);
-  const centiseconds = Math.floor((displayMs % 1000) / 10);
-  const twoDigits = (n) => (n < 10 ? "0" + n : n);
-
-  let timeStr;
-  if (hours > 0) {
-    timeStr = `${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}.${twoDigits(centiseconds)}`;
-  } else if (minutes > 0) {
-    timeStr = `${minutes}:${twoDigits(seconds)}.${twoDigits(centiseconds)}`;
-  } else {
-    timeStr = `${seconds}.${twoDigits(centiseconds)}`;
-  }
-
-  return isPlusTwo ? `${timeStr} (+2)` : timeStr;
+  
+  let formatted = formatTimeDisplay(displayMs, true); // Mostrar milisegundos completos
+  return isPlusTwo ? `${formatted} (+2)` : formatted;
 }
-

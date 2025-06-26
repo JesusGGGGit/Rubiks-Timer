@@ -35,9 +35,6 @@ body, html {
   width: 100vw;
 }
 
-.app-container.full-screen-mode {
-  background-color: var(--darker);
-}
 
 .times-sidebar {
   width: 320px;
@@ -214,10 +211,7 @@ body, html {
   
 }
 
-.main-content.full-screen {
-  justify-content: center;
-  padding: 0;
-}
+
 
 .scramble-display {
   background-color: var(--panel-bg);
@@ -243,9 +237,7 @@ body, html {
   line-height: 1.6;
   word-break: break-word;
 }
-.timer-container:not(.full-screen) {
-  padding-bottom: 140px; 
-}
+
 .timer-display {
   font-family: 'Roboto Mono', monospace;
   font-weight: 700;
@@ -274,11 +266,6 @@ body, html {
 
 .timer-display.ready {
   color: var(--success);
-}
-
-.timer-display.full-screen {
-  font-size: 20vw;
-  padding-top: 50px;
 }
 
 .instructions {
@@ -311,12 +298,12 @@ body, html {
     font-size: 4rem;
   }
   
-  .timer-display.full-screen {
-    font-size: 25vw;
-  }
+
 }
 
-
+.timer-container:not(.full-screen) {
+  padding-bottom: 140px; 
+}
 
 .modal-content {
   color: var(--darker);
@@ -449,26 +436,6 @@ body, html {
 
 
 
-/* Ajustes para full screen */
-.main-content.full-screen .timer-small {
-  font-size: 20vw !important;
-}
-
-.main-content.full-screen .timer-medium {
-  font-size: 25vw !important;
-}
-
-.main-content.full-screen .timer-large {
-  font-size: 30vw !important;
-}
-:root {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --scramble-color: #000000;
-  --timer-font-size: 48px;
-  --scramble-font-size: 18px;
-}
-
 
 .timer-display {
   font-size: var(--timer-font-size);
@@ -504,16 +471,7 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--danger);
 }
 
-.app-container.full-screen-mode .times-sidebar,
-.app-container.full-screen-mode .scramble-display,
-.app-container.full-screen-mode .instructions,
-.app-container.full-screen-mode nav {
-  display: none;
-}
 
-:fullscreen nav {
-  display: none;
-}
 
 .time-detail-modal {
   display: flex;
