@@ -163,6 +163,7 @@ function App() {
         bgColor={bgColor}
         cubeState={cubeState}
         activeSession={activeSession}
+        scrambleSize={scrambleSize} 
       />
 
       <SettingsModal

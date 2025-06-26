@@ -5,6 +5,7 @@ export default function MainContent({
   setShowSettings,
   scrambleColor,
   scramble,
+  scrambleSize, 
   showDnf,
   inspectionRunning,
   textColor,
@@ -17,6 +18,7 @@ export default function MainContent({
   cubeState,
   activeSession
 }) {
+
   return (
     <main className={`main-content ${fullScreenTimer ? "full-screen" : ""}`}>
       {!fullScreenTimer && (
@@ -24,14 +26,21 @@ export default function MainContent({
           <button className="settings-button" onClick={() => setShowSettings(true)}>
             ⚙️
           </button>
-          <div className="scramble-display">
-            <div className="scramble-label" style={{ color: scrambleColor }}>
-              Scramble
-            </div>
-            <div className="scramble-text" style={{ color: scrambleColor }}>
-              {scramble}
-            </div>
-          </div>
+<div className="scramble-display">
+  <div
+    className="scramble-label"
+    style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+  >
+    Scramble
+  </div>
+  <div
+    className="scramble-text"
+    style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+  >
+    {scramble}
+  </div>
+</div>
+
         </>
       )}
 
