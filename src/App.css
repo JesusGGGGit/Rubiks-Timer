@@ -26,7 +26,6 @@ body, html {
   color: var(--light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-   overflow: hidden;
 }
 
 .app-container {
@@ -328,7 +327,6 @@ input[type="range"]::-webkit-slider-thumb {
   max-height: 90vh;
   background: var(--dark);
   border-radius: 12px;
-  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -599,21 +597,18 @@ input[type="range"]::-webkit-slider-thumb {
 @media (max-width: 768px) {
   /* 1. Asegurar que el contenedor ocupe solo el viewport visible */
   html, body {
-    overflow: hidden;
     height: 100%;
   }
   
   .app-container {
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
   }
   
   /* 2. Ajustar la sidebar para que no ocupe demasiado espacio */
   .times-sidebar {
     height: 40vh;
     min-height: 40vh;
-    overflow-y: auto;
     transform: none;
     left: 0;
     width: 100%;
@@ -624,7 +619,6 @@ input[type="range"]::-webkit-slider-thumb {
     height: 60vh;
     padding: 10px;
     justify-content: space-between;
-    overflow: hidden;
   }
   
   /* 4. Redimensionar el timer */
@@ -643,7 +637,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.9rem;
     line-height: 1.3;
     max-height: 3.9rem; /* 3 líneas aprox */
-    overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
   }
