@@ -597,105 +597,105 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 @media (max-width: 768px) {
-  /* Ajustes generales del layout */
+  /* 1. Asegurar que el contenedor ocupe solo el viewport visible */
+  html, body {
+    overflow: hidden;
+    height: 100%;
+  }
+  
   .app-container {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
+    height: 100vh;
+    overflow: hidden;
   }
   
-  /* Sidebar móvil */
+  /* 2. Ajustar la sidebar para que no ocupe demasiado espacio */
   .times-sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 50vh;
-    position: relative;
+    height: 40vh;
+    min-height: 40vh;
+    overflow-y: auto;
     transform: none;
     left: 0;
-    padding: 15px;
+    width: 100%;
   }
   
-  /* Contenido principal */
+  /* 3. Reorganizar el contenido principal para que quepa */
   .main-content {
-    padding: 15px;
-    min-height: 50vh;
-    justify-content: space-between;
-  }
-  
-  /* Timer y scramble */
-  .timer-container {
-    height: auto;
-    padding: 20px 0;
-  }
-  
-  .timer-display {
-    font-size: 3.5rem !important;
-    margin: 10px 0;
-  }
-  
-  .scramble-display {
-    margin-top: 10px;
+    height: 60vh;
     padding: 10px;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  
+  /* 4. Redimensionar el timer */
+  .timer-display {
+    font-size: 3rem !important;
+    margin: 5px 0;
+  }
+  
+  /* 5. Ajustar el scramble text */
+  .scramble-display {
+    padding: 8px;
+    margin: 5px 0;
   }
   
   .scramble-text {
-    font-size: 1rem;
-    line-height: 1.4;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    max-height: 3.9rem; /* 3 líneas aprox */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
   
-  /* Instrucciones */
+  /* 6. Reposicionar las instrucciones */
   .instructions {
-    padding: 10px 0 40px;
-    font-size: 0.8rem;
-    position: relative;
-    bottom: auto;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    padding: 16px 0px 40px 0px;
+    font-size: 0.75rem;
   }
   
-  /* Ajustes del cubo */
+  /* 7. Ajustar el cubo para móviles */
   .cube-container {
-    position: relative;
+    position: absolute;
+    bottom: 50px;
+    right: 10px;
+    transform: scale(0.7);
+    transform-origin: bottom right;
     padding: 0;
-    margin: 20px auto;
-    width: 100%;
-    display: flex;
-    justify-content: center;
   }
   
-  .cube-visualization {
-    transform: scale(0.8);
-  }
-  
-  /* Mejoras para la lista de tiempos */
+  /* 8. Ajustar la lista de tiempos */
   .times-list {
-    max-height: 30vh;
+    max-height: calc(40vh - 120px);
   }
   
   .time-entry {
-    padding: 10px 12px;
-  }
-  
-  .time-value {
-    font-size: 0.9rem;
-  }
-  
-  /* Botones en móvil */
-  .modal-actions, .time-detail-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .btn, .time-detail-btn {
-    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 5px;
   }
 }
 
+/* Ajustes adicionales para pantallas muy pequeñas */
 @media (max-width: 480px) {
   .timer-display {
-    font-size: 2.8rem !important;
+    font-size: 2.5rem !important;
+  }
+  
+  .times-sidebar {
+    height: 45vh;
+    min-height: 45vh;
+  }
+  
+  .main-content {
+    height: 55vh;
   }
   
   .scramble-text {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 }
