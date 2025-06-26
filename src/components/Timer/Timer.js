@@ -17,6 +17,9 @@ import { useConfetti } from "../Hooks/useConfetti";
 import { useSessions } from "../Hooks/useSessions";
 import { useDeleteTime } from "../Hooks/useDeleteTime";
 import { useSettings } from "../Hooks/useSettings";
+import NewSessionModal from '../NewSessionModal/NewSessionModal';
+
+
 
 function App() {
   const {
@@ -165,7 +168,16 @@ function App() {
         activeSession={activeSession}
         scrambleSize={scrambleSize} 
       />
-
+      <NewSessionModal
+        show={showNewSessionForm}
+        setShow={setShowNewSessionForm}
+        newSessionName={newSessionName}
+        setNewSessionName={setNewSessionName}
+        newSessionCubeType={newSessionCubeType}
+        setNewSessionCubeType={setNewSessionCubeType}
+        handleCreateSession={handleCreateSession}
+        handleOutsideClick={() => setShowNewSessionForm(false)}  // aquí cierras modal
+      />
       <SettingsModal
         showSettings={showSettings}
         setShowSettings={setShowSettings}

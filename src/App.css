@@ -69,8 +69,6 @@ body, html {
 .scramble-display {
   background-color: var(--panel-bg);
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 30px;
   width: 100%;
   max-width: 1000px;
   text-align: center;
@@ -123,13 +121,11 @@ body, html {
 }
 
 .instructions {
-  position: fixed;
-  bottom: 0;
   width: 100%;
   color: var(--gray);
   font-size: 0.9rem;
   text-align: center;
-  padding: 30px ;
+  padding: 16px 0px 40px 0px;
 }
 
 
@@ -155,9 +151,7 @@ body, html {
 
 }
 
-.timer-container:not(.full-screen) {
-  padding-bottom: 140px; 
-}
+
 
 .modal-content {
   color: var(--darker);
@@ -487,16 +481,7 @@ input[type="range"]::-webkit-slider-thumb {
   100% { transform: scale(1); }
 }
 
-/* Estilos para la visualización del cubo */
-.cube-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: transparent;
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;
-}
+
 
 
 .danger-button.small {

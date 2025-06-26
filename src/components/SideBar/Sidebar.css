@@ -411,7 +411,7 @@
     position: fixed;
     top: 0;
     left: -320px; 
-    width: 280px;
+    width: 320px;
     height: 100vh;
     z-index: 999;
     transition: transform 0.3s ease;

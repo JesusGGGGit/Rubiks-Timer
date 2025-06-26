@@ -56,7 +56,19 @@ export default function MainContent({
           </div>
         )}
       </div>
-
+      {!fullScreenTimer && (
+        <div
+          className="cube-container"
+          style={{
+         
+          }}
+        >
+          <CubeVisualization
+            cubeState={cubeState}
+            cubeType={activeSession.cubeType || '3x3'}
+          />
+        </div>
+      )}
       {!fullScreenTimer && (
         <div className="instructions">
           <p>
@@ -69,24 +81,7 @@ export default function MainContent({
         </div>
       )}
 
-      {!fullScreenTimer && (
-        <div
-          className="cube-container"
-          style={{
-            padding: '10px',
-            borderRadius: '8px',
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            zIndex: 10
-          }}
-        >
-          <CubeVisualization
-            cubeState={cubeState}
-            cubeType={activeSession.cubeType || '3x3'}
-          />
-        </div>
-      )}
+
     </main>
   );
 }

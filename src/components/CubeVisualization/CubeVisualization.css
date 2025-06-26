@@ -1,12 +1,9 @@
 /* Cube Visualization Styles */
 .cube-container {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  border-radius: 12px;
-  padding: 15px;
-  z-index: 100;
-  
+  bottom: 0;
+  right: 0;
+  padding: 0px 40px 60px 0px;
 }
 
 .cube-visualization {
@@ -80,17 +77,4 @@
   justify-content: center;
   cursor: pointer;
   font-size: 14px;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .cube-container {
-    position: static;
-    margin: 20px auto;
-    width: fit-content;
-  }
-  
-  .cube-visualization {
-    --base-size: 22px;
-  }
 }
