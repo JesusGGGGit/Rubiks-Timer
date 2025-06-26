@@ -596,3 +596,106 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 8px;
 }
 
+@media (max-width: 768px) {
+  /* Ajustes generales del layout */
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  
+  /* Sidebar móvil */
+  .times-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    position: relative;
+    transform: none;
+    left: 0;
+    padding: 15px;
+  }
+  
+  /* Contenido principal */
+  .main-content {
+    padding: 15px;
+    min-height: 50vh;
+    justify-content: space-between;
+  }
+  
+  /* Timer y scramble */
+  .timer-container {
+    height: auto;
+    padding: 20px 0;
+  }
+  
+  .timer-display {
+    font-size: 3.5rem !important;
+    margin: 10px 0;
+  }
+  
+  .scramble-display {
+    margin-top: 10px;
+    padding: 10px;
+  }
+  
+  .scramble-text {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  /* Instrucciones */
+  .instructions {
+    padding: 10px 0 40px;
+    font-size: 0.8rem;
+    position: relative;
+    bottom: auto;
+  }
+  
+  /* Ajustes del cubo */
+  .cube-container {
+    position: relative;
+    padding: 0;
+    margin: 20px auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .cube-visualization {
+    transform: scale(0.8);
+  }
+  
+  /* Mejoras para la lista de tiempos */
+  .times-list {
+    max-height: 30vh;
+  }
+  
+  .time-entry {
+    padding: 10px 12px;
+  }
+  
+  .time-value {
+    font-size: 0.9rem;
+  }
+  
+  /* Botones en móvil */
+  .modal-actions, .time-detail-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn, .time-detail-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .timer-display {
+    font-size: 2.8rem !important;
+  }
+  
+  .scramble-text {
+    font-size: 0.9rem;
+  }
+}
