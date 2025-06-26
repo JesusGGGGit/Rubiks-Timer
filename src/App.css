@@ -645,17 +645,15 @@ input[type="range"]::-webkit-slider-thumb {
     max-height: 3.9rem; /* 3 líneas aprox */
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
   
   /* 6. Reposicionar las instrucciones */
   .instructions {
-    position: absolute;
-    bottom: 10px;
+    bottom: 0;
     left: 0;
     right: 0;
-    padding: 16px 0px 40px 0px;
+    padding: 0 10px 10px;
     font-size: 0.75rem;
   }
   
@@ -697,5 +695,12 @@ input[type="range"]::-webkit-slider-thumb {
   
   .scramble-text {
     font-size: 0.8rem;
+  }
+  .instructions {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 10px 10px;
+    font-size: 0.75rem;
   }
 }
