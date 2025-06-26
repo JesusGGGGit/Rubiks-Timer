@@ -64,10 +64,8 @@ export default function MainContent({
         <div
           className="cube-container"
           style={{
-            backgroundColor: bgColor,
             padding: '10px',
             borderRadius: '8px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
             position: 'fixed',
             bottom: '20px',
             right: '20px',

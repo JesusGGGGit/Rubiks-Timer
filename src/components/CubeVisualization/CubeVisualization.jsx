@@ -1,13 +1,12 @@
 import './CubeVisualization.css';
 
 export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
-  // Extraemos el tamaño solo si es 2 o 3, sino no renderizamos nada
-  const cubeSize = parseInt(cubeType[0]);
-  if (cubeSize !== 2 && cubeSize !== 3) {
-    return
+  const cubeDimensions = parseInt(cubeType[0]);
+  if (cubeDimensions !== 2 && cubeDimensions !== 3) {
+    return null;
   }
 
-  const stickersPerFace = cubeSize * cubeSize;
+  const stickersPerFace = cubeDimensions * cubeDimensions;
 
   const safeCubeState = {
     U: cubeState.U?.slice(0, stickersPerFace) || Array(stickersPerFace).fill('white'),
@@ -18,9 +17,10 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
     D: cubeState.D?.slice(0, stickersPerFace) || Array(stickersPerFace).fill('yellow')
   };
 
-  const stickerSize = cubeSize === 2 ? '40px' : '30px';
+  const baseStickerSize = cubeDimensions === 2 ? 'var(--cube-size, 30px)' : 'calc(var(--cube-size, 30px) / 1.5)';
+  const stickerSize = baseStickerSize;
   const gapSize = '1px';
-  const faceWidth = `calc(${cubeSize} * ${stickerSize} + ${(cubeSize - 1)} * ${gapSize})`;
+  const faceWidth = `calc(${cubeDimensions} * ${stickerSize} + ${(cubeDimensions - 1)} * ${gapSize})`;
 
   const renderPlaceholder = () => (
     <div
@@ -34,8 +34,8 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
       className={`cube-face ${faceName}-face`}
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${cubeSize}, ${stickerSize})`,
-        gridTemplateRows: `repeat(${cubeSize}, ${stickerSize})`,
+        gridTemplateColumns: `repeat(${cubeDimensions}, ${stickerSize})`,
+        gridTemplateRows: `repeat(${cubeDimensions}, ${stickerSize})`,
         gap: gapSize,
         width: faceWidth,
         height: faceWidth,
@@ -59,7 +59,7 @@ export default function CubeVisualization({ cubeState, cubeType = '3x3' }) {
   );
 
   return (
-    <div className={`cube-visualization cube-${cubeSize}x${cubeSize}`}>
+    <div className={`cube-visualization cube-${cubeDimensions}x${cubeDimensions}`}>
       <div className="cube-face-row">
         {renderPlaceholder()}
         {renderFace('U', 'up')}

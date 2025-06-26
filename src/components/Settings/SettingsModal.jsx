@@ -28,17 +28,25 @@ export default function SettingsModal({
   createNewSession,
   scrambleSize,
   setScrambleSize,
+  cubeSize,
+  setCubeSize,      
   setShowSettings,
 }) {
   if (!showSettings) return null;
- const handleOutsideClick = (e) => {
+  
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+  
+  const handleOutsideClick = (e) => {
     if (e.target.classList.contains("modal-overlay")) {
       setShowSettings(false);
     }
   };
+  
   return (
     <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
-        <div className="settings-content" onClick={(e) => e.stopPropagation()}>
+      <div className="settings-content" onClick={(e) => e.stopPropagation()}>
         <div className="settings-sidebar">
           {["apariencia", "comportamiento", "tiempos", "sesiones", "scramble"].map((tab) => (
             <button
@@ -200,15 +208,34 @@ export default function SettingsModal({
               <h3>Configuración de Scramble</h3>
               <div className="setting-group">
                 <label>
-                  Tamaño del texto:
+                  Tamaño del texto: {scrambleSize}
                   <input
                     type="range"
-                    min="1"
+                    min="10"
                     max="30"
                     value={scrambleSize}
                     onChange={(e) => setScrambleSize(parseInt(e.target.value))}
                   />
                 </label>
+                <p className="setting-description">Ajusta el tamaño del scramble</p>
+              </div>
+              <div className="setting-group">
+                <label>
+                  Tamaño del cubo visualizado: {isMobile() ? 10 : cubeSize}
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={isMobile() ? 10 : cubeSize}
+                    onChange={(e) => !isMobile() && setCubeSize(parseInt(e.target.value))}
+                    disabled={isMobile()}
+                  />
+                </label>
+                {isMobile() ? (
+                  <p className="setting-description">El tamaño del cubo está fijo en 10 para dispositivos móviles</p>
+                ) : (
+                    <p className="setting-description">Ajusta el tamaño de la visualización del cubo</p>
+                )}
               </div>
             </div>
           )}

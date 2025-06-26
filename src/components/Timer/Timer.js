@@ -20,13 +20,14 @@ import { useSettings } from "../Hooks/useSettings";
 import useFullscreen from "../Hooks/useFullscreen";
 
 function App() {
-  const {
-    bgColor, setBgColor,
-    textColor, setTextColor,
-    scrambleColor, setScrambleColor,
-    timerSize, setTimerSize,
-    scrambleSize, setScrambleSize
-  } = useTheme();
+const {
+  bgColor, setBgColor,
+  textColor, setTextColor,
+  scrambleColor, setScrambleColor,
+  timerSize, setTimerSize,
+  scrambleSize, setScrambleSize,
+  cubeSize, setCubeSize 
+} = useTheme();
 
   const {
     sessions,
@@ -204,6 +205,8 @@ function App() {
         createNewSession={createNewSession}
         scrambleSize={scrambleSize}
         setScrambleSize={setScrambleSize}
+        cubeSize={cubeSize}
+        setCubeSize={setCubeSize}
       />
 
       <Modals
