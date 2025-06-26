@@ -35,6 +35,16 @@ export const useTimerLogic = ({
   useEffect(() => { showDnfRef.current = showDnf; }, [showDnf]);
   useEffect(() => { timeRef.current = time; }, [time]);
 
+  const isInTimerContainer = (element) => {
+    while (element !== null && element !== document.body) {
+      if (element.classList?.contains('timer-container')) {
+        return true;
+      }
+      element = element.parentNode;
+    }
+    return false;
+  };
+
   const startInspection = useCallback(() => {
     let remaining = inspectionDuration;
     setTime(-remaining * 1000);
@@ -64,10 +74,16 @@ export const useTimerLogic = ({
     }, 1000);
   }, [inspectionDuration, activeSessionId, scramble, setSessions, generateScramble]);
 
-  const handleKeyDown = useCallback((e) => {
+  const handleStart = useCallback((e) => {
+    // Verificar si el evento ocurrió dentro del timer-container
+    if (!isInTimerContainer(e.target)) return;
+    
+    // Para eventos de teclado, verificar si es la tecla espacio
+    if (e.type === 'keydown' && e.code !== "Space") return;
+    
+    // Ignorar si el evento proviene de un input o textarea
     if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
-    if (e.code !== "Space") return;
-
+    
     e.preventDefault();
     if (showDnfRef.current) {
       setShowDnf(false);
@@ -92,10 +108,16 @@ export const useTimerLogic = ({
     }
   }, [holdToStart, inspectionTime, startInspection]);
 
-  const handleKeyUp = useCallback((e) => {
+  const handleStop = useCallback((e) => {
+    // Verificar si el evento ocurrió dentro del timer-container
+    if (!isInTimerContainer(e.target)) return;
+    
+    // Para eventos de teclado, verificar si es la tecla espacio
+    if (e.type === 'keyup' && e.code !== "Space") return;
+    
+    // Ignorar si el evento proviene de un input o textarea
     if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
-    if (e.code !== "Space") return;
-
+    
     e.preventDefault();
     clearTimeout(holdTimeoutRef.current);
     if (showDnfRef.current) return;
@@ -117,24 +139,35 @@ export const useTimerLogic = ({
               }
             : session
         ));
-        onNewSolve?.(timeRef.current); // Optional callback
+        onNewSolve?.(timeRef.current);
       }
       generateScramble();
     }
   }, [activeSessionId, scramble, generateScramble, setSessions, onNewSolve]);
 
-  
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    // Eventos de teclado
+    window.addEventListener("keydown", handleStart);
+    window.addEventListener("keyup", handleStop);
+    
+    // Eventos táctiles
+    window.addEventListener("touchstart", handleStart, { passive: false });
+    window.addEventListener("touchend", handleStop, { passive: false });
+    
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      // Limpiar eventos de teclado
+      window.removeEventListener("keydown", handleStart);
+      window.removeEventListener("keyup", handleStop);
+      
+      // Limpiar eventos táctiles
+      window.removeEventListener("touchstart", handleStart);
+      window.removeEventListener("touchend", handleStop);
+      
       clearInterval(intervalRef.current);
       clearInterval(inspectionIntervalRef.current);
       clearTimeout(holdTimeoutRef.current);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleStart, handleStop]);
 
   useEffect(() => {
     if (running) {
