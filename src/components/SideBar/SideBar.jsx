@@ -82,7 +82,7 @@ export default function TimesSidebar({
           />
           <StatsCard
             label="Promedio"
-            value={stats.mo3 !== null ? formatTimeFull(stats.mo3, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "-:-"}
+            value={stats.overallAverage !== null ? formatTimeFull(stats.mo3, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "-:-"}
             onClick={() => openStatDetail("mo3")}
           />
           <StatsCard
