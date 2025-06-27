@@ -1,4 +1,3 @@
-// Función unificada para formato de tiempo
 export function formatTimeDisplay(ms, showFullMs = false) {
   if (ms === "DNF" || ms === null) return "DNF";
   
@@ -26,7 +25,6 @@ export function formatTimeDisplay(ms, showFullMs = false) {
   }
 }
 
-// Función para formato completo con penalizaciones
 export function formatTimeFull(ms, index, plusTwoTimes = [], dnfTimes = []) {
   if (ms === "DNF" || ms === null) return "DNF";
   
@@ -39,6 +37,6 @@ export function formatTimeFull(ms, index, plusTwoTimes = [], dnfTimes = []) {
   
   if (displayMs === "DNF") return "DNF";
   
-  let formatted = formatTimeDisplay(displayMs, true); // Mostrar milisegundos completos
+  let formatted = formatTimeDisplay(displayMs, true); 
   return isPlusTwo ? `${formatted} (+2)` : formatted;
 }

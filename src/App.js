@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { useSessions } from '../src/components/Hooks/useSessions';
 import Timer from './components/Timer/Timer';
 import Estadisticas from './components/Estadisticas/Estadisticas';
@@ -38,10 +38,9 @@ function AppContent() {
 
 function App() {
   return (
-<Router basename="/Rubiks-Timer">
-  <AppContent />
-</Router>
-
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

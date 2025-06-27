@@ -49,7 +49,7 @@ function StatDetailModal({ selectedStat, stats, activeSession, setShowStatsModal
     mo3: {
       title: "Promedio General",
       description: "El promedio de todos tus tiempos registrados.",
-      value: stats.mo3 !== null ? formatTimeFull(stats.mo3, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--",
+      value: stats.overallAverage !== null ? formatTimeFull(stats.mo3, null, activeSession.plusTwoTimes, activeSession.dnfTimes) : "--:--",
       times: activeSession.times
     },
     bestAo5: {
