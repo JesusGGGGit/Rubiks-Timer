@@ -228,18 +228,6 @@
   font-size: 14px;
 }
 
-/* Media queries para responsividad */
-@media (max-width: 768px) {
-  .cube-container {
-    position: static;
-    margin: 20px auto;
-    width: fit-content;
-  }
-  
-  .cube-visualization {
-    --base-size: 22px;
-  }
-}
 
 
 .toggle-switch {
