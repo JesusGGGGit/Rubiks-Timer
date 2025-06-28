@@ -93,7 +93,10 @@ body, html {
   font-family: 'Roboto Mono', monospace;
   font-weight: 700;
   color: var(--light);
-  margin: auto;
+  margin-top: auto; 
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: auto;
   transition: all 0.3s ease;
 
 }

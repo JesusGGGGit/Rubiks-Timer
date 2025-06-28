@@ -20,6 +20,7 @@ export const useTimerLogic = ({
   const intervalRef = useRef(null);
   const inspectionIntervalRef = useRef(null);
   const holdTimeoutRef = useRef(null);
+  const pressStartTimeRef = useRef(null);
 
   const runningRef = useRef(running);
   const inspectionRunningRef = useRef(inspectionRunning);
@@ -37,7 +38,6 @@ export const useTimerLogic = ({
 
   const isInTimerContainer = (element) => {
     if (!element || element === document.body) return false;
-
     while (element !== null && element !== document.body) {
       if (element.classList?.contains('timer-container')) {
         return true;
@@ -54,9 +54,7 @@ export const useTimerLogic = ({
     setShowDnf(false);
     setInspectionRunning(true);
 
-    if (inspectionIntervalRef.current) {
-      clearInterval(inspectionIntervalRef.current);
-    }
+    if (inspectionIntervalRef.current) clearInterval(inspectionIntervalRef.current);
 
     inspectionIntervalRef.current = setInterval(() => {
       remaining -= 1;
@@ -69,10 +67,10 @@ export const useTimerLogic = ({
         setSessions(prev => prev.map(session =>
           session.id === activeSessionId
             ? {
-                ...session,
-                times: [...session.times, { time: "DNF", scramble }],
-                dnfTimes: [...session.dnfTimes, session.times.length],
-              }
+              ...session,
+              times: [...session.times, { time: "DNF", scramble }],
+              dnfTimes: [...session.dnfTimes, session.times.length],
+            }
             : session
         ));
         generateScramble();
@@ -82,10 +80,12 @@ export const useTimerLogic = ({
 
   const handleStart = useCallback((e) => {
     if (e.type.includes('touch') && !isInTimerContainer(e.target)) return;
-    if (e.type === 'keydown' && e.code !== "Space") return;
+    if (e.type === 'keydown' && e.code !== "Space" && e.key !== " ") return;
     if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
 
     e.preventDefault();
+
+    pressStartTimeRef.current = performance.now();
 
     if (showDnfRef.current) {
       setShowDnf(false);
@@ -111,46 +111,54 @@ export const useTimerLogic = ({
       }, 500);
     }
   }, [holdToStart, inspectionTime, startInspection]);
+const handleStop = useCallback((e) => {
+  if (e.type.includes('touch') && !isInTimerContainer(e.target)) return;
+  if (e.type === 'keyup' && e.code !== "Space" && e.key !== " ") return;
+  if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
 
-  const handleStop = useCallback((e) => {
-    if (e.type.includes('touch') && !isInTimerContainer(e.target)) return;
-    if (e.type === 'keyup' && e.code !== "Space") return;
-    if (["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
+  e.preventDefault();
 
-    e.preventDefault();
+  if (holdTimeoutRef.current) {
+    clearTimeout(holdTimeoutRef.current);
+    holdTimeoutRef.current = null;
+  }
 
-    if (holdTimeoutRef.current) {
-      clearTimeout(holdTimeoutRef.current);
-      holdTimeoutRef.current = null;
+  const holdTime = performance.now() - (pressStartTimeRef.current || 0);
+
+  if (!readyRef.current && !runningRef.current) {
+    if (holdToStart && holdTime < 500) {
+      return; 
     }
+  }
 
-    if (showDnfRef.current) return;
+  if (showDnfRef.current) return;
 
-    if (readyRef.current) {
-      setTime(0);
-      setRunning(true);
-      setReady(false);
-      setInspectionRunning(false);
-      if (inspectionIntervalRef.current) {
-        clearInterval(inspectionIntervalRef.current);
-        inspectionIntervalRef.current = null;
-      }
-    } else if (runningRef.current) {
-      setRunning(false);
-      if (timeRef.current > 0) {
-        setSessions(prev => prev.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                times: [...session.times, { time: timeRef.current, scramble }],
-              }
-            : session
-        ));
-        onNewSolve?.(timeRef.current);
-      }
-      generateScramble();
+  if (readyRef.current) {
+    setTime(0);
+    setRunning(true);
+    setReady(false);
+    setInspectionRunning(false);
+    if (inspectionIntervalRef.current) {
+      clearInterval(inspectionIntervalRef.current);
+      inspectionIntervalRef.current = null;
     }
-  }, [activeSessionId, scramble, generateScramble, setSessions, onNewSolve]);
+  } else if (runningRef.current) {
+    setRunning(false);
+    if (timeRef.current > 0) {
+      setSessions(prev => prev.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              times: [...session.times, { time: timeRef.current, scramble }],
+            }
+          : session
+      ));
+      onNewSolve?.(timeRef.current);
+    }
+    generateScramble();
+  }
+}, [activeSessionId, scramble, generateScramble, holdToStart, setSessions, onNewSolve]);
+
 
   useEffect(() => {
     const keyDownHandler = (e) => handleStart(e);

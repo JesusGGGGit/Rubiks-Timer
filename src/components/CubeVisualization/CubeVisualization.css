@@ -1,9 +1,6 @@
 /* Cube Visualization Styles */
 .cube-container {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  padding: 0px 40px 60px 0px;
+  margin-left: auto;
 }
 
 .cube-visualization {
