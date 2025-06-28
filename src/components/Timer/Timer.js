@@ -126,7 +126,31 @@ function App() {
 
   return (
     <div className="app-container" style={{ backgroundColor: bgColor }}>
-     
+      <TimesSidebar
+        stats={stats}
+        activeSession={activeSession}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        switchSession={switchSession}
+        openNewSessionForm={openNewSessionForm}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        showNewSessionForm={showNewSessionForm}
+        setShowNewSessionForm={setShowNewSessionForm}
+        newSessionName={newSessionName}
+        setNewSessionName={setNewSessionName}
+        newSessionCubeType={newSessionCubeType}
+        setNewSessionCubeType={setNewSessionCubeType}
+        handleCreateSession={handleCreateSession}
+        handleOutsideClick={handleOutsideClick}
+        openStatDetail={openStatDetail}
+        openTimeDetailModal={openTimeDetailModal}
+        requestDeleteTime={requestDeleteTime}
+        formatTimeFull={formatTimeFull}
+        getSortedTimes={getSortedTimes}
+        getStdDevColor={getStdDevColor}
+      />
+
       <MainContent
         setShowSettings={setShowSettings}
         scrambleColor={scrambleColor}
