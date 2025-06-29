@@ -7,22 +7,52 @@ import './nav.css';
 
 function AppContent() {
   const [showSettings, setShowSettings] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
   return (
     <div>
       <nav>
+        <button className="hamburger" onClick={toggleMenu}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        
         <div className="nav-center">
-          <Link to="/">Timer</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Timer</Link>
           <span className="nav-separator">|</span>
-          <Link to="/estadisticas">Estadísticas</Link>
+          <Link to="/estadisticas" onClick={() => setMenuOpen(false)}>Estadísticas</Link>
         </div>
+        
         <button 
           className="settings-button" 
-          onClick={() => setShowSettings(true)}
+          onClick={() => {
+            setShowSettings(true);
+            setMenuOpen(false);
+          }}
         >
           Configuración
         </button>
       </nav>
+
+      {/* Menú móvil */}
+      <div className={`mobile-menu ${menuOpen ? 'active' : ''}`}>
+        <Link to="/" onClick={() => setMenuOpen(false)}>Timer</Link>
+        <Link to="/estadisticas" onClick={() => setMenuOpen(false)}>Estadísticas</Link>
+        <button 
+          className="mobile-settings-button" 
+          onClick={() => {
+            setShowSettings(true);
+            setMenuOpen(false);
+          }}
+        >
+          Configuración
+        </button>
+      </div>
 
       <main>
         <Routes>
@@ -38,6 +68,7 @@ function AppContent() {
     </div>
   );
 }
+
 function App() {
   return (
     <Router>

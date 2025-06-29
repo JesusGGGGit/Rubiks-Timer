@@ -18,9 +18,6 @@ nav {
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* Estilos base para enlaces y botón */
@@ -48,7 +45,6 @@ nav a,
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  margin-left: auto;
   padding: 0 0.5rem;
 }
 
@@ -87,9 +83,82 @@ nav a:hover::after,
   user-select: none;
 }
 
-/* Ajuste fino para alinear ícono si lo usas */
-.settings-icon {
-  margin-right: 0.5rem;
-  font-size: 0.9em;
-  vertical-align: middle;
+/* Estilos para el menú hamburguesa */
+.hamburger {
+  display: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 5px;
+}
+
+.hamburger span {
+  display: block;
+  width: 25px;
+  height: 2px;
+  background-color: #ccc;
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
+
+/* Estilos para el menú móvil */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background-color: #121218;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 49;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobile-menu a {
+  padding: 0.5rem 1rem;
+  color: #ccc;
+  text-decoration: none;
+}
+
+.mobile-menu a:hover {
+  color: var(--primary, #3a86ff);
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 768px) {
+  .nav-center {
+    display: none;
+  }
+  
+  .settings-button {
+    display: none;
+  }
+  
+  .hamburger {
+    display: block;
+  }
+  
+  .mobile-menu.active {
+    display: flex;
+  }
+  
+  /* Estilos para el botón de configuración en móvil */
+  .mobile-settings-button {
+    display: block;
+    background: none;
+    border: none;
+    color: #ccc;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .mobile-settings-button:hover {
+    color: var(--primary, #3a86ff);
+  }
 }
