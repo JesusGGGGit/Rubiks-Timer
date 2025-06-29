@@ -548,15 +548,14 @@ html, body {
   }
 
   .cube-container {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
+    margin-bottom: auto;
   }
 
 
   .timer-container
   {
-    margin: auto;
+    margin-bottom: auto;
+    margin-top: auto;
   }
   body, html {
     overflow-x: hidden;
