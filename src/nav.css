@@ -2,7 +2,7 @@ nav {
   background-color: #121218;
   padding: 0.75rem 1.5rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Centramos todo por defecto */
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -13,11 +13,18 @@ nav {
   height: 40px;
 }
 
+/* Contenedor para los elementos que quieres centrar */
 .nav-center {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
+  flex-grow: 1; /* Ocupa todo el espacio disponible */
+}
+
+/* Contenedor para el botón de configuración */
+.nav-right {
+  margin-left: auto; /* Empuja el botón a la derecha */
 }
 
 /* Estilos base para enlaces y botón */
@@ -142,6 +149,7 @@ nav a:hover::after,
   
   .mobile-menu.active {
     display: flex;
+    top: 40px;
   }
   
   /* Estilos para el botón de configuración en móvil */
