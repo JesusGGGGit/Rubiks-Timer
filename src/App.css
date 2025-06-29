@@ -546,7 +546,12 @@ html, body {
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
   }
-  
+
+  .cube-container {
+    margin-bottom: auto;
+    margin-left: auto;
+}
+
   .timer-container
   {
     margin: auto;
