@@ -1,10 +1,7 @@
-import React, { useState, useCallback } from "react";
 import "../../App.css";
 import SettingsModal from '../Settings/SettingsModal';
-import { formatTimeDisplay, formatTimeFull } from '../utils/formatUtils';
+import { formatTimeDisplay,formatTimeFull } from '../utils/formatUtils';
 import { calculateStats } from '../utils/calculateStats';
-import { getStdDevColor } from '../utils/Descriptions';
-import { getSortedTimes } from '../utils/sorting';
 import StatDetailModal from '../StatDetailModal/StatDetailModal';
 import Modals from '../TimesModal/TimesModal';
 import TimesSidebar from '../SideBar/SideBar';
@@ -18,10 +15,12 @@ import { useSessions } from "../Hooks/useSessions";
 import { useDeleteTime } from "../Hooks/useDeleteTime";
 import { useSettings } from "../Hooks/useSettings";
 import NewSessionModal from '../NewSessionModal/NewSessionModal';
+import { getStdDevColor } from '../utils/Descriptions';
+import { getSortedTimes } from '../utils/sorting';
+import React, { useState} from "react";
 
 
-
-function App() {
+function Timer({ showSettings, setShowSettings }) {
   const {
     bgColor, setBgColor,
     textColor, setTextColor,
@@ -62,7 +61,6 @@ function App() {
   const stats = calculateStats(activeSession.times, activeSession.plusTwoTimes, activeSession.dnfTimes);
   const { scramble, cubeState, generateScramble } = useScramble(activeSession.cubeType);
 
-  const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("apariencia");
 
   useConfetti(activeSessionId, activeSession.times, stats.bestTime);
@@ -108,12 +106,12 @@ function App() {
   const [selectedStat, setSelectedStat] = useState(null);
   const [sortOrder, setSortOrder] = useState("recent");
 
-  const handleCreateSession = useCallback(() => {
+  const handleCreateSession = React.useCallback(() => {
     if (!newSessionName.trim()) return;
     createNewSession(newSessionName, newSessionCubeType);
   }, [newSessionName, newSessionCubeType, createNewSession]);
 
-  const handleOutsideClick = useCallback((e) => {
+  const handleOutsideClick = React.useCallback((e) => {
     if (e.target.classList.contains("modal-overlay")) {
       setShowStatsModal(false);
     }
@@ -152,9 +150,9 @@ function App() {
       />
 
       <MainContent
-        setShowSettings={setShowSettings}
         scrambleColor={scrambleColor}
         scramble={scramble}
+        scrambleSize={scrambleSize}
         showDnf={showDnf}
         inspectionRunning={inspectionRunning}
         textColor={textColor}
@@ -166,8 +164,8 @@ function App() {
         bgColor={bgColor}
         cubeState={cubeState}
         activeSession={activeSession}
-        scrambleSize={scrambleSize} 
       />
+
       <NewSessionModal
         show={showNewSessionForm}
         setShow={setShowNewSessionForm}
@@ -176,8 +174,9 @@ function App() {
         newSessionCubeType={newSessionCubeType}
         setNewSessionCubeType={setNewSessionCubeType}
         handleCreateSession={handleCreateSession}
-        handleOutsideClick={() => setShowNewSessionForm(false)}  // aquí cierras modal
+        handleOutsideClick={() => setShowNewSessionForm(false)}
       />
+
       <SettingsModal
         showSettings={showSettings}
         setShowSettings={setShowSettings}
@@ -239,4 +238,4 @@ function App() {
   );
 }
 
-export default App;
+export default Timer;

@@ -17,7 +17,7 @@ export function useTheme() {
     scrambleSize: parseInt(localStorage.getItem("scrambleSize")) || 30,
     cubeSize: Math.min(
       parseInt(localStorage.getItem("cubeSize")) || 50,
-      isMobile ? 10 : 100 // Límites diferentes para móvil/desktop
+      isMobile ? 10 : 20 // Límites diferentes para móvil/desktop
     )
   }));
 
@@ -31,7 +31,7 @@ export function useTheme() {
     // Tamaños
     document.documentElement.style.setProperty('--timer-font-size', `${theme.timerSize}px`);
     document.documentElement.style.setProperty('--scramble-font-size', `${theme.scrambleSize}px`);
-    document.documentElement.style.setProperty('--cube-size', `${isMobile ? 10 : theme.cubeSize}px`);
+    document.documentElement.style.setProperty('--cube-size', `${isMobile ? 20 : theme.cubeSize}px`);
     
     // Guardar en localStorage (excepto cubeSize en móviles)
     localStorage.setItem("bgColor", theme.bgColor);

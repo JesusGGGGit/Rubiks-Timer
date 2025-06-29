@@ -1,21 +1,31 @@
 nav {
-  background-color: #121218; /* Más oscuro, más neutro */
+  background-color: #121218;
   padding: 0.75rem 1.5rem;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  font-family: var(--font-family, 'Inter', sans-serif);
-  backdrop-filter: blur(6px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: sticky;
   top: 0;
   z-index: 50;
   height: 40px;
 }
 
-nav a {
+.nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Estilos base para enlaces y botón */
+nav a,
+.settings-button {
   color: #ccc;
   text-decoration: none;
   font-weight: 500;
@@ -23,9 +33,28 @@ nav a {
   position: relative;
   padding-bottom: 3px;
   transition: color 0.25s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-nav a::after {
+/* Reset específico para botón en navegadores */
+.settings-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin-left: auto;
+  padding: 0 0.5rem;
+}
+
+/* Efecto subrayado para ambos */
+nav a::after,
+.settings-button::after {
   content: '';
   position: absolute;
   width: 100%;
@@ -39,11 +68,14 @@ nav a::after {
   opacity: 0.7;
 }
 
-nav a:hover {
+/* Efectos hover */
+nav a:hover,
+.settings-button:hover {
   color: var(--primary, #3a86ff);
 }
 
-nav a:hover::after {
+nav a:hover::after,
+.settings-button:hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -53,4 +85,11 @@ nav a:hover::after {
   font-size: 1rem;
   pointer-events: none;
   user-select: none;
+}
+
+/* Ajuste fino para alinear ícono si lo usas */
+.settings-icon {
+  margin-right: 0.5rem;
+  font-size: 0.9em;
+  vertical-align: middle;
 }

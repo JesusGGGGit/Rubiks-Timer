@@ -221,12 +221,12 @@ export default function SettingsModal({
               </div>
               <div className="setting-group">
                 <label>
-                  Tamaño del cubo visualizado: {isMobile() ? 10 : cubeSize}
+                  Tamaño del cubo visualizado: {isMobile() ? 20 : cubeSize}
                   <input
                     type="range"
                     min="10"
                     max="50"
-                    value={isMobile() ? 10 : cubeSize}
+                    value={isMobile() ? 20 : cubeSize}
                     onChange={(e) => !isMobile() && setCubeSize(parseInt(e.target.value))}
                     disabled={isMobile()}
                   />

@@ -1,10 +1,9 @@
 import CubeVisualization from '../CubeVisualization/CubeVisualization';
 
 export default function MainContent({
-  setShowSettings,
   scrambleColor,
   scramble,
-  scrambleSize, 
+  scrambleSize,
   showDnf,
   inspectionRunning,
   textColor,
@@ -17,28 +16,22 @@ export default function MainContent({
   cubeState,
   activeSession
 }) {
-
   return (
     <main className="main-content">
-      <>
-        <button className="settings-button" onClick={() => setShowSettings(true)}>
-          ⚙️
-        </button>
-        <div className="scramble-display">
-          <div
-            className="scramble-label"
-            style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
-          >
-            Scramble
-          </div>
-          <div
-            className="scramble-text"
-            style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
-          >
-            {scramble}
-          </div>
+      <div className="scramble-display">
+        <div
+          className="scramble-label"
+          style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+        >
+          Scramble
         </div>
-      </>
+        <div
+          className="scramble-text"
+          style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+        >
+          {scramble}
+        </div>
+      </div>
 
       <div className="timer-container">
         {showDnf ? (
