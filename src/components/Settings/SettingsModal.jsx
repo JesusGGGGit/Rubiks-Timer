@@ -225,7 +225,7 @@ export default function SettingsModal({
                   <input
                     type="range"
                     min="10"
-                    max="100"
+                    max="50"
                     value={isMobile() ? 10 : cubeSize}
                     onChange={(e) => !isMobile() && setCubeSize(parseInt(e.target.value))}
                     disabled={isMobile()}
