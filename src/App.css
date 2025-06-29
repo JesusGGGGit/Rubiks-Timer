@@ -548,9 +548,11 @@ html, body {
   }
 
   .cube-container {
-    margin-bottom: auto;
-    margin-left: auto;
-}
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+  }
+
 
   .timer-container
   {
