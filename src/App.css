@@ -67,12 +67,11 @@ body, html {
 
 
 .scramble-display {
-  background-color: var(--panel-bg);
   border-radius: 12px;
   width: 100%;
   max-width: 1000px;
   text-align: center;
-  padding-top: 25px;
+  padding-top: 50px;
   
 }
 
@@ -126,7 +125,7 @@ body, html {
   color: var(--gray);
   font-size: 0.9rem;
   text-align: center;
-  padding-top: 50px;
+  padding-top: 75px;
 }
 
 
