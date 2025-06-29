@@ -547,6 +547,10 @@ html, body {
     -ms-text-size-adjust: 100%;
   }
   
+  .timer-container
+  {
+    margin: auto;
+  }
   body, html {
     overflow-x: hidden;
     position: relative;
@@ -580,21 +584,8 @@ html, body {
   }
   
   .instructions {
-    width: 95%;
-    margin: 0 auto;
-    padding: 10px 0 20px;
-    font-size: 0.8rem;
-    line-height: 1.4;
-    box-sizing: border-box;
-  }
-  
-  .timer-display {
-    font-size: 3.5rem !important;
-  }
-  
-  .timer-container {
-    height: auto;
-    min-height: 150px;
+    position: fixed;
+    bottom: 0;
   }
   
   .modal {
@@ -641,6 +632,6 @@ html, body {
   }
   
   .timer-display {
-    font-size: 4rem !important;
+    font-size: 4rem
   }
 }
