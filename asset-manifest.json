@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Rubiks-Timer/static/css/main.33d2f48f.css",
-    "main.js": "/Rubiks-Timer/static/js/main.9cae0933.js",
-    "static/js/453.aacf6c37.chunk.js": "/Rubiks-Timer/static/js/453.aacf6c37.chunk.js",
+    "main.css": "/Rubiks-Timer/static/css/main.c2ec3a5f.css",
+    "main.js": "/Rubiks-Timer/static/js/main.6d8b2cd4.js",
+    "static/js/453.49b05dac.chunk.js": "/Rubiks-Timer/static/js/453.49b05dac.chunk.js",
     "index.html": "/Rubiks-Timer/index.html",
-    "main.33d2f48f.css.map": "/Rubiks-Timer/static/css/main.33d2f48f.css.map",
-    "main.9cae0933.js.map": "/Rubiks-Timer/static/js/main.9cae0933.js.map",
-    "453.aacf6c37.chunk.js.map": "/Rubiks-Timer/static/js/453.aacf6c37.chunk.js.map"
+    "main.c2ec3a5f.css.map": "/Rubiks-Timer/static/css/main.c2ec3a5f.css.map",
+    "main.6d8b2cd4.js.map": "/Rubiks-Timer/static/js/main.6d8b2cd4.js.map",
+    "453.49b05dac.chunk.js.map": "/Rubiks-Timer/static/js/453.49b05dac.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.33d2f48f.css",
-    "static/js/main.9cae0933.js"
+    "static/css/main.c2ec3a5f.css",
+    "static/js/main.6d8b2cd4.js"
   ]
 }
