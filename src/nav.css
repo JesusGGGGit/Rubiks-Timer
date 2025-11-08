@@ -170,3 +170,16 @@ nav a:hover::after,
     color: var(--primary, #3a86ff);
   }
 }
+
+/* Buttons that look like links (used when opening modal instead of navigating) */
+.link-like,
+.mobile-link-like {
+  color: #ccc;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.link-like:hover,
+.mobile-link-like:hover { color: var(--primary, #3a86ff) }

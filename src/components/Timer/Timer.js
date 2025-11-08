@@ -1,5 +1,5 @@
 import "../../App.css";
-import SettingsModal from '../Settings/SettingsModal';
+// SettingsModal moved to a dedicated Settings page
 import { formatTimeDisplay,formatTimeFull } from '../utils/formatUtils';
 import { calculateStats } from '../utils/calculateStats';
 import StatDetailModal from '../StatDetailModal/StatDetailModal';
@@ -20,7 +20,7 @@ import { getSortedTimes } from '../utils/sorting';
 import React, { useState} from "react";
 
 
-function Timer({ showSettings, setShowSettings }) {
+function Timer() {
   const {
     bgColor, setBgColor,
     textColor, setTextColor,
@@ -177,38 +177,7 @@ function Timer({ showSettings, setShowSettings }) {
         handleOutsideClick={() => setShowNewSessionForm(false)}
       />
 
-      <SettingsModal
-        showSettings={showSettings}
-        setShowSettings={setShowSettings}
-        activeSettingsTab={activeSettingsTab}
-        setActiveSettingsTab={setActiveSettingsTab}
-        bgColor={bgColor}
-        setBgColor={setBgColor}
-        textColor={textColor}
-        setTextColor={setTextColor}
-        scrambleColor={scrambleColor}
-        setScrambleColor={setScrambleColor}
-        timerSize={timerSize}
-        setTimerSize={setTimerSize}
-        holdToStart={holdToStart}
-        setHoldToStart={setHoldToStart}
-        inspectionTime={inspectionTime}
-        setInspectionTime={setInspectionTime}
-        inspectionDuration={inspectionDuration}
-        setInspectionDuration={setInspectionDuration}
-        dontAskAgain={dontAskAgain}
-        setDontAskAgain={setDontAskAgain}
-        resetTimes={resetTimes}
-        sessions={sessions}
-        renameSession={renameSession}
-        deleteSession={deleteSession}
-        activeSessionId={activeSessionId}
-        createNewSession={createNewSession}
-        scrambleSize={scrambleSize}
-        setScrambleSize={setScrambleSize}
-        cubeSize={cubeSize}
-        setCubeSize={setCubeSize}
-      />
+      {/* Settings are now available on the /settings page */}
 
       <Modals
         showDeleteModal={showDeleteModal}

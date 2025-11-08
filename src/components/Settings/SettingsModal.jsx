@@ -1,4 +1,6 @@
 import "./SettingsModal.css"; 
+import { useAuth } from '../Context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function SettingsModal({
   showSettings,
@@ -32,7 +34,9 @@ export default function SettingsModal({
   setCubeSize,      
   setShowSettings,
 }) {
-  if (!showSettings) return null;
+   const navigate = useNavigate();
+   const { user, logout } = useAuth();
+   if (!showSettings) return null;
   
   const isMobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -43,12 +47,14 @@ export default function SettingsModal({
       setShowSettings(false);
     }
   };
+
+  
   
   return (
     <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
       <div className="settings-content" onClick={(e) => e.stopPropagation()}>
         <div className="settings-sidebar">
-          {["apariencia", "comportamiento", "tiempos", "sesiones", "scramble"].map((tab) => (
+          {["apariencia", "comportamiento", "tiempos", "sesiones", "scramble", "cuenta"].map((tab) => (
             <button
               key={tab}
               className={`settings-tab ${activeSettingsTab === tab ? "active" : ""}`}
@@ -60,6 +66,7 @@ export default function SettingsModal({
                 tiempos: "⏱️ Tiempos",
                 sesiones: "📁 Sesiones",
                 scramble: "🔀 Scramble",
+                cuenta: "👤 Cuenta",
               }[tab]}
             </button>
           ))}
@@ -237,6 +244,27 @@ export default function SettingsModal({
                     <p className="setting-description">Ajusta el tamaño de la visualización del cubo</p>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeSettingsTab === "cuenta" && (
+            <div className="settings-section">
+              <h3>Cuenta</h3>
+              {user ? (
+                <div>
+                  <p>Conectado como: <strong>{user.displayName || user.email}</strong></p>
+                  <button className="primary-button" onClick={() => { logout(); setShowSettings(false); }}>
+                    Cerrar sesión
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <p>No hay ninguna sesión iniciada.</p>
+                  <button className="primary-button" onClick={() => { setShowSettings(false); navigate('/login'); }}>
+                    Ir a iniciar sesión
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
