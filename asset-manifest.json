@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Rubiks-Timer/static/css/main.7ebb508b.css",
+    "main.css": "/Rubiks-Timer/static/css/main.91d001f2.css",
     "main.js": "/Rubiks-Timer/static/js/main.ac7cb900.js",
     "static/js/453.49b05dac.chunk.js": "/Rubiks-Timer/static/js/453.49b05dac.chunk.js",
     "index.html": "/Rubiks-Timer/index.html",
-    "main.7ebb508b.css.map": "/Rubiks-Timer/static/css/main.7ebb508b.css.map",
+    "main.91d001f2.css.map": "/Rubiks-Timer/static/css/main.91d001f2.css.map",
     "main.ac7cb900.js.map": "/Rubiks-Timer/static/js/main.ac7cb900.js.map",
     "453.49b05dac.chunk.js.map": "/Rubiks-Timer/static/js/453.49b05dac.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.7ebb508b.css",
+    "static/css/main.91d001f2.css",
     "static/js/main.ac7cb900.js"
   ]
 }
