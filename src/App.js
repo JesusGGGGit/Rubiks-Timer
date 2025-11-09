@@ -79,7 +79,7 @@ function AppContent() {
 
       <main>
         <Routes>
-          <Route path="/" element={<Timer settings={settings} />} />
+          <Route path="/" element={<Timer settings={settings} theme={theme} />} />
           <Route path="/estadisticas" element={<Estadisticas />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/settings" element={<SettingsPage settings={settings} />} />

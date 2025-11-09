@@ -20,13 +20,16 @@ import { getSortedTimes } from '../utils/sorting';
 import React, { useState} from "react";
 
 
-function Timer({ settings: externalSettings }) {
+function Timer({ settings: externalSettings, theme: externalTheme }) {
+  // Always call the hook (rules of hooks). Prefer theme passed from App (single source of truth).
+  const internalTheme = useTheme();
+  const themeHook = externalTheme || internalTheme;
   const {
     bgColor,
     textColor,
     scrambleColor,
     scrambleSize
-  } = useTheme();
+  } = themeHook;
 
   const {
     sessions,
