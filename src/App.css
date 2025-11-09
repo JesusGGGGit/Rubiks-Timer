@@ -14,12 +14,12 @@
   --panel-bg: rgba(255, 255, 255, 0.05);
   /* Responsive cube sticker size: make smaller to be less intrusive
     min 6px, preferred 3vw, max 28px */
-  --cube-size: clamp(6px, 6vw, 60px);
+  --cube-size: clamp(6px, 9vw, 60px);
   /* Responsive timer and scramble sizes using clamp to avoid too-small text */
   /* timer: min 36px, preferred 8vw, max 220px */
   --timer-font-size: clamp(36px, 22vw, 220px);
-  /* scramble label/text: min 14px, preferred 3.2vw, max 30px */
-  --scramble-font-size: clamp(14px, 3.2vw, 30px);
+  /* scramble label/text: min 14px, preferred 5vw, max 30px */
+  --scramble-font-size: clamp(14px, 5vw, 30px);
 }
 
 * {
