@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatTime } from '../../utils/helpers';
 
-export default function TimerDisplay({ time, running, inspectionRunning, ready, timerSize, dnf }) {
+export default function TimerDisplay({ time, running, inspectionRunning, ready, dnf }) {
   const getTimerClass = () => {
     if (dnf) return 'dnf';
     if (inspectionRunning) {
@@ -15,7 +15,7 @@ export default function TimerDisplay({ time, running, inspectionRunning, ready, 
 
   return (
     <div className={`timer-display ${getTimerClass()}`}>
-      <div className="time" style={{ fontSize: `${timerSize}px` }}>
+      <div className="time">
         {formatTime(time)}
       </div>
       {dnf && <div className="dnf-label">DNF</div>}

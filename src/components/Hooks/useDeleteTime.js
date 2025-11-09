@@ -1,15 +1,22 @@
 import { useState, useCallback, useEffect } from "react";
 
-export function useDeleteTime(activeSessionId, setSessions) {
+export function useDeleteTime(activeSessionId, setSessions, externalDontAskAgain, externalSetDontAskAgain) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [timeToDeleteIndex, setTimeToDeleteIndex] = useState(null);
-  const [dontAskAgain, setDontAskAgain] = useState(() => {
+
+  // Support external shared dontAskAgain (from useSettings) or keep local state
+  const hasExternal = typeof externalDontAskAgain !== 'undefined';
+  const [localDontAsk, setLocalDontAsk] = useState(() => {
     return localStorage.getItem("dontAskDelete") === "true";
   });
+  const dontAskAgain = hasExternal ? externalDontAskAgain : localDontAsk;
+  const setDontAskAgain = hasExternal ? (externalSetDontAskAgain || (()=>{})) : setLocalDontAsk;
 
   useEffect(() => {
-    localStorage.setItem("dontAskDelete", dontAskAgain ? "true" : "false");
-  }, [dontAskAgain]);
+    if (!hasExternal) {
+      localStorage.setItem("dontAskDelete", dontAskAgain ? "true" : "false");
+    }
+  }, [dontAskAgain, hasExternal]);
 
   const deleteTime = useCallback(
     (index) => {
@@ -35,14 +42,16 @@ export function useDeleteTime(activeSessionId, setSessions) {
 
   const requestDeleteTime = useCallback(
     (index) => {
-      if (dontAskAgain) {
+      // Re-evaluate localStorage in case other parts changed it
+      const currentDontAsk = hasExternal ? dontAskAgain : (localStorage.getItem("dontAskDelete") === "true");
+      if (currentDontAsk) {
         deleteTime(index);
       } else {
         setTimeToDeleteIndex(index);
         setShowDeleteModal(true);
       }
     },
-    [dontAskAgain, deleteTime]
+    [deleteTime, hasExternal, dontAskAgain]
   );
 
   const confirmDeleteTime = useCallback(() => {

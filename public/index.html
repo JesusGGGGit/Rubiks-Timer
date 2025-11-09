@@ -5,8 +5,15 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+  <!-- PWA: manifest and mobile/web-app capability -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <meta name="msapplication-TileColor" content="#000000" />
     <title>Rubik Timer</title>
-      <script type="module" src="/node_modules/cubing/twisty.js"></script>
+  <!-- Removed direct node_modules import; scramble library is loaded via CDN below. -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

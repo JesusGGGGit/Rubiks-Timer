@@ -15,19 +15,20 @@ export default function MainContent({
   bgColor,
   cubeState,
   activeSession
+  , showCube = true
 }) {
   return (
     <main className="main-content">
       <div className="scramble-display">
         <div
           className="scramble-label"
-          style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+          style={{ color: scrambleColor }}
         >
           Scramble
         </div>
         <div
           className="scramble-text"
-          style={{ color: scrambleColor, fontSize: `${scrambleSize}px` }}
+          style={{ color: scrambleColor }}
         >
           {scramble}
         </div>
@@ -46,7 +47,7 @@ export default function MainContent({
         )}
       </div>
 
-      <div className="cube-container">
+      <div className={`cube-container ${(!showCube || inspectionRunning || ready || (time && time > 0)) ? 'cube-hidden' : ''}`}>
         <CubeVisualization
           cubeState={cubeState}
           cubeType={activeSession.cubeType || '3x3'}

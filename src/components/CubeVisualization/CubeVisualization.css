@@ -1,8 +1,22 @@
 /* Cube Visualization Styles */
 .cube-container {
+  /* Keep the cube out of document flow by default so it never shifts the timer/layout.
+     Position/fine-tuning for different breakpoints is handled below; these defaults
+     ensure the cube is fixed to the viewport and non-interactive. */
+  display: block;
   position: fixed;
-  right: 50px;
-  bottom: 80px;
+  /* Respect device safe-area insets (notch/home indicator) but fall back to 12px/88px */
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  transform-origin: bottom right;
+  transform: scale(0.42);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Force-hide when timing/inspection (applied by MainContent) */
+.cube-container.cube-hidden {
+  display: none !important;
 }
 
 .cube-visualization {
@@ -38,6 +52,57 @@
     0 0 0 1px rgba(0, 0, 0, 0.08);
   border: 1px solid black;
   
+}
+
+/* Mobile adjustments: reduce presence and avoid overlapping bottom nav */
+/* On small screens hide the cube to avoid overlay issues */
+/* Show a small positioned cube on tablets (e.g. iPad) */
+/* Mobile: position fixed bottom-right so cube doesn't center in the flow */
+@media (max-width: 767px) {
+  .cube-container {
+    display: block;
+    position: fixed;
+    right: 12px;
+    bottom: 88px; /* above bottom nav */
+    transform-origin: bottom right;
+    transform: scale(0.42);
+    z-index: 10;
+    pointer-events: none;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .cube-container {
+    display: block;
+    position: fixed; /* fix to viewport so it stays bottom-right */
+    right: 18px; /* moved to bottom-right */
+    bottom: 120px;
+    transform-origin: bottom right;
+    transform: scale(0.48);
+    z-index: 10; /* keep behind timer */
+    pointer-events: none; /* allow clicks to pass through to timer */
+  }
+
+  .cube-sticker {
+    border-width: 0.8px;
+  }
+}
+
+/* On large desktop screens keep a small fixed cube at bottom-right */
+@media (min-width: 1200px) {
+  .cube-container {
+    display: block;
+    position: fixed;
+    right: 70px; /* bottom-right on large screens */
+    bottom: 80px;
+    transform-origin: bottom right;
+    transform: scale(0.48); /* slightly smaller on large screens */
+    z-index: 10; /* keep behind timer */
+    pointer-events: none; /* don't block interactions */
+  }
+
+  .cube-sticker {
+    border-width: 1px;
+  }
 }
 
 /* Sticker colors */

@@ -5,12 +5,14 @@ import { useTheme } from '../Hooks/useTheme';
 import { useSettings } from '../Hooks/useSettings';
 import { useSessions } from '../Hooks/useSessions';
 
-export default function SettingsPage() {
+export default function SettingsPage({ settings: externalSettings }) {
   const [activeSettingsTab, setActiveSettingsTab] = useState('apariencia');
   const navigate = useNavigate();
 
   const theme = useTheme();
-  const settings = useSettings();
+  // Always call useSettings() (rules of hooks). Prefer externalSettings when provided.
+  const internalSettings = useSettings();
+  const settings = externalSettings || internalSettings;
   const sessionsHooks = useSessions();
 
   // Render SettingsModal as a full page. Provide a real setShowSettings that navigates back when closed.
@@ -46,8 +48,10 @@ export default function SettingsPage() {
         setInspectionTime={settings.setInspectionTime}
         inspectionDuration={settings.inspectionDuration}
         setInspectionDuration={settings.setInspectionDuration}
-        dontAskAgain={false}
-        setDontAskAgain={() => {}}
+        dontAskAgain={settings.dontAskAgain}
+        setDontAskAgain={settings.setDontAskAgain}
+  showCube={settings.showCube}
+  setShowCube={settings.setShowCube}
         resetTimes={sessionsHooks.resetTimes}
         sessions={sessionsHooks.sessions}
         renameSession={sessionsHooks.renameSession}

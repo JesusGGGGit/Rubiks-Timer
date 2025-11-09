@@ -22,6 +22,25 @@ export function useSettings() {
     localStorage.setItem("holdToStart", holdToStart);
   }, [holdToStart]);
 
+  // Don't-ask-again for deletion (shared setting)
+  const [dontAskAgain, setDontAskAgain] = useState(() => {
+    return localStorage.getItem("dontAskDelete") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("dontAskDelete", dontAskAgain ? "true" : "false");
+  }, [dontAskAgain]);
+
+  // Show/hide cube preference
+  const [showCube, setShowCube] = useState(() => {
+    const stored = localStorage.getItem('showCube');
+    return stored === null ? true : stored === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('showCube', showCube ? 'true' : 'false');
+  }, [showCube]);
+
   return {
     inspectionTime,
     setInspectionTime,
@@ -29,6 +48,10 @@ export function useSettings() {
     setInspectionDuration,
     holdToStart,
     setHoldToStart,
+    dontAskAgain,
+    setDontAskAgain,
+    showCube,
+    setShowCube,
   };
 }
 

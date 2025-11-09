@@ -26,8 +26,8 @@ const Modals = ({
             <label className="centered-label">
               <input
                 type="checkbox"
-                checked={dontAskAgain}
-                onChange={(e) => setDontAskAgain(e.target.checked)}
+                checked={!!dontAskAgain}
+                onChange={(e) => { if (typeof setDontAskAgain === 'function') setDontAskAgain(e.target.checked); }}
               />
               No preguntar de nuevo
             </label>

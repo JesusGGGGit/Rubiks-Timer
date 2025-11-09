@@ -20,14 +20,12 @@ import { getSortedTimes } from '../utils/sorting';
 import React, { useState} from "react";
 
 
-function Timer() {
+function Timer({ settings: externalSettings }) {
   const {
-    bgColor, setBgColor,
-    textColor, setTextColor,
-    scrambleColor, setScrambleColor,
-    timerSize, setTimerSize,
-    scrambleSize, setScrambleSize,
-    cubeSize, setCubeSize 
+    bgColor,
+    textColor,
+    scrambleColor,
+    scrambleSize
   } = useTheme();
 
   const {
@@ -36,9 +34,6 @@ function Timer() {
     activeSession,
     createNewSession,
     switchSession,
-    renameSession,
-    deleteSession,
-    resetTimes,
     setSessions,
     showNewSessionForm,
     setShowNewSessionForm,
@@ -49,19 +44,21 @@ function Timer() {
     openNewSessionForm,
   } = useSessions();
 
+  // Always call the hook (rules of hooks). Prefer settings passed from App (single source of truth).
+  const internalSettings = useSettings();
+  const settingsHook = externalSettings || internalSettings;
   const {
     inspectionTime,
-    setInspectionTime,
     inspectionDuration,
-    setInspectionDuration,
     holdToStart,
-    setHoldToStart
-  } = useSettings();
+    dontAskAgain: settingsDontAsk,
+    setDontAskAgain: setSettingsDontAsk
+  } = settingsHook;
 
   const stats = calculateStats(activeSession.times, activeSession.plusTwoTimes, activeSession.dnfTimes);
   const { scramble, cubeState, generateScramble } = useScramble(activeSession.cubeType);
 
-  const [activeSettingsTab, setActiveSettingsTab] = useState("apariencia");
+  // settings page/tab state moved to dedicated Settings page; not used here
 
   useConfetti(activeSessionId, activeSession.times, stats.bestTime);
 
@@ -100,7 +97,7 @@ function Timer() {
     setDontAskAgain,
     requestDeleteTime,
     confirmDeleteTime,
-  } = useDeleteTime(activeSessionId, setSessions);
+  } = useDeleteTime(activeSessionId, setSessions, settingsDontAsk, setSettingsDontAsk);
 
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedStat, setSelectedStat] = useState(null);
@@ -164,6 +161,7 @@ function Timer() {
         bgColor={bgColor}
         cubeState={cubeState}
         activeSession={activeSession}
+        showCube={settingsHook.showCube}
       />
 
       <NewSessionModal

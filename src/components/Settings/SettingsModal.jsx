@@ -33,14 +33,14 @@ export default function SettingsModal({
   cubeSize,
   setCubeSize,      
   setShowSettings,
+  showCube,
+  setShowCube,
 }) {
    const navigate = useNavigate();
    const { user, logout } = useAuth();
    if (!showSettings) return null;
   
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  };
+  // mobile detection not needed here; settings modal layout is handled via CSS/responsive rules
   
   const handleOutsideClick = (e) => {
     if (e.target.classList.contains("modal-overlay")) {
@@ -54,7 +54,7 @@ export default function SettingsModal({
     <div className="modal-overlay settings-modal" onClick={handleOutsideClick}>
       <div className="settings-content" onClick={(e) => e.stopPropagation()}>
         <div className="settings-sidebar">
-          {["apariencia", "comportamiento", "tiempos", "sesiones", "scramble", "cuenta"].map((tab) => (
+          {["apariencia", "comportamiento", "tiempos", "sesiones", "cuenta"].map((tab) => (
             <button
               key={tab}
               className={`settings-tab ${activeSettingsTab === tab ? "active" : ""}`}
@@ -95,16 +95,16 @@ export default function SettingsModal({
                 </label>
               </div>
               <div className="setting-group">
-                <label>
-                  Tamaño del timer: {timerSize}%
+                <label className="toggle-switch">
                   <input
-                    type="range"
-                    min="10"
-                    max="450"
-                    value={timerSize}
-                    onChange={(e) => setTimerSize(parseInt(e.target.value))}
+                    type="checkbox"
+                    checked={!!showCube}
+                    onChange={(e) => { if (typeof setShowCube === 'function') setShowCube(e.target.checked); }}
                   />
+                  <span className="slider"></span>
+                  Mostrar cubo
                 </label>
+                <p className="setting-description">Activa para mostrar el cubo de visualización en la interfaz.</p>
               </div>
             </div>
           )}
@@ -164,15 +164,26 @@ export default function SettingsModal({
                 <label className="toggle-switch">
                   <input
                     type="checkbox"
-                    checked={dontAskAgain}
-                    onChange={(e) => setDontAskAgain(e.target.checked)}
+                    checked={!!dontAskAgain}
+                    onChange={(e) => { if (typeof setDontAskAgain === 'function') setDontAskAgain(e.target.checked); }}
                   />
                   <span className="slider"></span>
                   No preguntar antes de borrar
                 </label>
               </div>
               <div className="setting-group">
-                <button className="danger-button" onClick={resetTimes}>
+                <button className="danger-button" onClick={() => {
+                  // Prefer the shared dontAskAgain preference if available
+                  const shouldSkip = !!dontAskAgain;
+                  if (shouldSkip) {
+                    // call resetTimes for current active session
+                    try { resetTimes(activeSessionId); } catch (e) { resetTimes(); }
+                  } else {
+                    if (window.confirm("¿Estás seguro de que quieres borrar todos los tiempos de esta sesión?")) {
+                      try { resetTimes(activeSessionId); } catch (e) { resetTimes(); }
+                    }
+                  }
+                }}>
                   Borrar todos los tiempos
                 </button>
                 <p className="setting-description">Esta acción borrará los tiempos solo de la sesión actual</p>
@@ -214,35 +225,7 @@ export default function SettingsModal({
             <div className="settings-section">
               <h3>Configuración de Scramble</h3>
               <div className="setting-group">
-                <label>
-                  Tamaño del texto: {scrambleSize}
-                  <input
-                    type="range"
-                    min="10"
-                    max="30"
-                    value={scrambleSize}
-                    onChange={(e) => setScrambleSize(parseInt(e.target.value))}
-                  />
-                </label>
-                <p className="setting-description">Ajusta el tamaño del scramble</p>
-              </div>
-              <div className="setting-group">
-                <label>
-                  Tamaño del cubo visualizado: {isMobile() ? 20 : cubeSize}
-                  <input
-                    type="range"
-                    min="10"
-                    max="50"
-                    value={isMobile() ? 20 : cubeSize}
-                    onChange={(e) => !isMobile() && setCubeSize(parseInt(e.target.value))}
-                    disabled={isMobile()}
-                  />
-                </label>
-                {isMobile() ? (
-                  <p className="setting-description">El tamaño del cubo está fijo en 10 para dispositivos móviles</p>
-                ) : (
-                    <p className="setting-description">Ajusta el tamaño de la visualización del cubo</p>
-                )}
+                <p>El tamaño del scramble y del cubo se ajustan automáticamente al tamaño de la pantalla para garantizar una visualización correcta en todos los dispositivos.</p>
               </div>
             </div>
           )}

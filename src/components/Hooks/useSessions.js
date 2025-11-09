@@ -187,14 +187,18 @@ export function useSessions() {
   }, [activeSessionId, sessions]);
 
   const resetTimes = useCallback((sessionId) => {
+    // If sessionId not provided, default to current active session
+    const targetId = sessionId || activeSessionId;
+    if (!targetId) return;
+
     if (window.confirm("¿Estás seguro de que quieres borrar todos los tiempos de esta sesión?")) {
       setSessions(prevSessions => prevSessions.map(session =>
-        session.id === sessionId
+        session.id === targetId
           ? { ...session, times: [], plusTwoTimes: [], dnfTimes: [] }
           : session
       ));
     }
-  }, []);
+  }, [activeSessionId]);
 
   const addSession = useCallback((name, cubeType = "3x3") => {
     if (!name.trim()) return;

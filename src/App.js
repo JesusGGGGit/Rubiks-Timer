@@ -53,20 +53,36 @@ function AppContent() {
         )}
       </nav>
 
-      {/* Menú móvil */}
-      <div className={`mobile-menu ${menuOpen ? 'active' : ''}`}>
-        <Link to="/" onClick={() => setMenuOpen(false)}>Timer</Link>
-        <Link to="/estadisticas" onClick={() => setMenuOpen(false)}>Estadísticas</Link>
-        <button className="mobile-link-like" onClick={() => { setShowSettings(true); setMenuOpen(false); }}>Configuración</button>
-        <Link to="/login" className="mobile-settings-button" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
+      {/* Barra de navegación inferior para móvil */}
+      <div className={`mobile-bottom-nav ${menuOpen ? 'active' : ''}`}>
+        <Link to="/" onClick={() => setMenuOpen(false)} className="bottom-nav-item" aria-label="Timer">
+          <div className="icon">⏱️</div>
+          <div className="label">Timer</div>
+        </Link>
+        <Link to="/estadisticas" onClick={() => setMenuOpen(false)} className="bottom-nav-item" aria-label="Estadísticas">
+          <div className="icon">📊</div>
+          <div className="label">Estadísticas</div>
+        </Link>
+        <button className="bottom-nav-item" onClick={() => { setShowSettings(true); setMenuOpen(false); }} aria-label="Configuración">
+          <div className="icon">⚙️</div>
+          <div className="label">Config</div>
+        </button>
+        {user ? (
+          <div className="bottom-nav-item user-badge-mobile">{user.displayName || user.email}</div>
+        ) : (
+          <Link to="/login" className="bottom-nav-item" onClick={() => setMenuOpen(false)} aria-label="Iniciar sesión">
+            <div className="icon">🔐</div>
+            <div className="label">Entrar</div>
+          </Link>
+        )}
       </div>
 
       <main>
         <Routes>
-          <Route path="/" element={<Timer />} />
+          <Route path="/" element={<Timer settings={settings} />} />
           <Route path="/estadisticas" element={<Estadisticas />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings" element={<SettingsPage settings={settings} />} />
         </Routes>
       </main>
 
@@ -90,8 +106,10 @@ function AppContent() {
         setInspectionTime={settings.setInspectionTime}
         inspectionDuration={settings.inspectionDuration}
         setInspectionDuration={settings.setInspectionDuration}
-        dontAskAgain={settings.dontAskAgain}
-        setDontAskAgain={settings.setDontAskAgain}
+  dontAskAgain={settings.dontAskAgain}
+  setDontAskAgain={settings.setDontAskAgain}
+  showCube={settings.showCube}
+  setShowCube={settings.setShowCube}
         resetTimes={sessionsHooks.resetTimes}
         sessions={sessionsHooks.sessions}
         renameSession={sessionsHooks.renameSession}
